@@ -96,15 +96,16 @@ func main() {
 					return cli.NewExitError("ERROR: API returned error (see above)", 7)
 				}
 
+				cWhite := color.New(color.FgHiWhite)
+				cGreen := color.New(color.FgGreen)
+				cRed := color.New(color.FgRed)
+				cCyan := color.New(color.FgCyan)
+
 				for _, v := range dat {
 					switch vv := v.(type) {
 					case []interface{}:
 						for _, u := range vv {
 							project := u.(map[string]interface{})
-							cWhite := color.New(color.FgHiWhite)
-							cGreen := color.New(color.FgGreen)
-							cRed := color.New(color.FgRed)
-							cCyan := color.New(color.FgCyan)
 
 							cWhite.Print(project["id"])
 							if project["owner"] == "1" {

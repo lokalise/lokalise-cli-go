@@ -21,8 +21,8 @@ import (
 )
 
 func main() {
-	var api_token string
-	var config_file string
+	var apiToken string
+	var configFile string
 
 	type Config struct {
 		Token   string
@@ -39,12 +39,12 @@ func main() {
 		cli.StringFlag{
 			Name:        "token",
 			Usage:       "API `token` is required and can be obtained under your Account page in Lokalise.",
-			Destination: &api_token,
+			Destination: &apiToken,
 		},
 		cli.StringFlag{
 			Name:        "config",
 			Usage:       "Load configuration from `file`. Looks up /etc/lokalise.cfg by default.",
-			Destination: &config_file,
+			Destination: &configFile,
 		},
 	}
 
@@ -56,23 +56,23 @@ func main() {
 			Action: func(c *cli.Context) error {
 				var conf Config
 
-				if config_file == "" {
-					config_file = "/etc/lokalise.cfg"
+				if configFile == "" {
+					configFile = "/etc/lokalise.cfg"
 				}
 
-				if _, err := toml.DecodeFile(config_file, &conf); err != nil {
+				if _, err := toml.DecodeFile(configFile, &conf); err != nil {
 					// do nothing if no config
 				}
 
-				if api_token == "" {
-					api_token = conf.Token
+				if apiToken == "" {
+					apiToken = conf.Token
 				}
 
-				if api_token == "" {
+				if apiToken == "" {
 					return cli.NewExitError("ERROR: --token is required.  Run `lokalise help` for all options.", 5)
 				}
 
-				res, err := http.Get("https://api.lokalise.co/api/project/list?api_token=" + api_token)
+				res, err := http.Get("https://api.lokalise.co/api/project/list?api_token=" + apiToken)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -100,19 +100,19 @@ func main() {
 					switch vv := v.(type) {
 					case []interface{}:
 						for _, u := range vv {
-							prj := u.(map[string]interface{})
-							c_white := color.New(color.FgHiWhite)
-							c_green := color.New(color.FgGreen)
-							c_red := color.New(color.FgRed)
-							c_cyan := color.New(color.FgCyan)
+							project := u.(map[string]interface{})
+							cWhite := color.New(color.FgHiWhite)
+							cGreen := color.New(color.FgGreen)
+							cRed := color.New(color.FgRed)
+							cCyan := color.New(color.FgCyan)
 
-							c_white.Print(prj["id"])
-							if prj["owner"] == "1" {
-								c_green.Print(" (admin) ")
+							cWhite.Print(project["id"])
+							if project["owner"] == "1" {
+								cGreen.Print(" (admin) ")
 							} else {
-								c_red.Print(" (contr) ")
+								cRed.Print(" (contr) ")
 							}
-							c_cyan.Println(" ", prj["name"])
+							cCyan.Println(" ", project["name"])
 						}
 					}
 				}
@@ -209,26 +209,26 @@ func main() {
 			Action: func(c *cli.Context) error {
 				var conf Config
 
-				if config_file == "" {
-					config_file = "/etc/lokalise.cfg"
+				if configFile == "" {
+					configFile = "/etc/lokalise.cfg"
 				}
 
-				if _, err := toml.DecodeFile(config_file, &conf); err != nil {
+				if _, err := toml.DecodeFile(configFile, &conf); err != nil {
 					// do nothing if no config
 				}
 
-				if api_token == "" {
-					api_token = conf.Token
+				if apiToken == "" {
+					apiToken = conf.Token
 				}
-				if api_token == "" {
+				if apiToken == "" {
 					return cli.NewExitError("ERROR: --token is required.  Run `lokalise help` for all options.", 5)
 				}
 
-				pid := c.Args().First();
-				if (pid == "") {
-					pid = conf.Project
+				projectId := c.Args().First();
+				if (projectId == "") {
+					projectId = conf.Project
 				}
-				if (pid == "") {
+				if (projectId == "") {
 					return cli.NewExitError("ERROR: Project ID is required as first command option. Run `lokalise help export` for all options.", 5)
 				}
 
@@ -237,109 +237,109 @@ func main() {
 					dest = "."
 				}
 
-				filetype := c.String("type")
-				if filetype == "" {
+				fileType := c.String("type")
+				if fileType == "" {
 					return cli.NewExitError("ERROR: --type is required. Run `lokalise help export` for all options.", 5)
 				}
 
-				theurl := "api_token=" + api_token + `&id=` + pid + `&type=` + filetype
+				theUrl := "api_token=" + apiToken + `&id=` + projectId + `&type=` + fileType
 
 				langs := c.String("langs")
 				if (langs != "") {
 					langs = s2json(langs)
-					theurl += "&langs=" + langs
+					theUrl += "&langs=" + langs
 				}
 
-				use_original := c.String("use_original")
-				if (use_original != "") {
-					theurl += "&use_original=" + use_original
+				useOriginal := c.String("use_original")
+				if (useOriginal != "") {
+					theUrl += "&use_original=" + useOriginal
 				}
 
-				no_language_folders := c.String("no_language_folders")
-				if (no_language_folders != "") {
-					theurl += "&switch_no_language_folders=" + no_language_folders
+				noLanguageFolders := c.String("no_language_folders")
+				if (noLanguageFolders != "") {
+					theUrl += "&switch_no_language_folders=" + noLanguageFolders
 				}
 
 				filter := c.String("filter")
 				if (filter != "") {
 					filter = s2json(filter)
-					theurl += "&filter=" + filter
+					theUrl += "&filter=" + filter
 				}
 
 				triggers := c.String("triggers")
 				if (triggers != "") {
 					triggers = s2json(triggers)
-					theurl += "&triggers=" + triggers
+					theUrl += "&triggers=" + triggers
 				}
 
-				bundle_structure := c.String("bundle_structure")
-				if (bundle_structure != "") {
-					theurl += "&bundle_structure=" + bundle_structure
+				bundleStructure := c.String("bundle_structure")
+				if (bundleStructure != "") {
+					theUrl += "&bundle_structure=" + bundleStructure
 				}
 
-				webhook_url := c.String("webhook_url")
-				if (webhook_url != "") {
-					theurl += "&webhook_url=" + webhook_url
+				webhookUrl := c.String("webhook_url")
+				if (webhookUrl != "") {
+					theUrl += "&webhook_url=" + webhookUrl
 				}
 
-				export_all := c.String("export_all")
-				if (export_all != "") {
-					theurl += "&export_all=" + export_all
+				exportAll := c.String("export_all")
+				if (exportAll != "") {
+					theUrl += "&export_all=" + exportAll
 				}
 
-				ota_plugin_bundle := c.String("ota_plugin_bundle")
-				if (ota_plugin_bundle != "") {
-					theurl += "&ota_plugin_bundle=" + ota_plugin_bundle
+				otaPluginBundle := c.String("ota_plugin_bundle")
+				if (otaPluginBundle != "") {
+					theUrl += "&ota_plugin_bundle=" + otaPluginBundle
 				}
 
-				export_empty := c.String("export_empty")
-				if (export_empty != "") {
-					theurl += "&export_empty=" + export_empty
+				exportEmpty := c.String("export_empty")
+				if (exportEmpty != "") {
+					theUrl += "&export_empty=" + exportEmpty
 				}
 
-				export_sort := c.String("export_sort")
-				if (export_sort != "") {
-					theurl += "&export_sort=" + export_sort
+				exportSort := c.String("export_sort")
+				if (exportSort != "") {
+					theUrl += "&export_sort=" + exportSort
 				}
 
-				include_comments := c.String("include_comments")
-				if (include_comments != "") {
-					theurl += "&include_comments=" + include_comments
+				includeComments := c.String("include_comments")
+				if (includeComments != "") {
+					theUrl += "&include_comments=" + includeComments
 				}
 
-				replace_breaks := c.String("replace_breaks")
-				if (replace_breaks != "") {
-					theurl += "&replace_breaks=" + replace_breaks
+				replaceBreaks := c.String("replace_breaks")
+				if (replaceBreaks != "") {
+					theUrl += "&replace_breaks=" + replaceBreaks
 				}
 
-				yaml_include_root := c.String("yaml_include_root")
-				if (yaml_include_root != "") {
-					theurl += "&yaml_include_root=" + yaml_include_root
+				yamlIncludeRoot := c.String("yaml_include_root")
+				if (yamlIncludeRoot != "") {
+					theUrl += "&yaml_include_root=" + yamlIncludeRoot
 				}
 
-				json_unescaped_slashes := c.String("json_unescaped_slashes")
-				if (json_unescaped_slashes != "") {
-					theurl += "&json_unescaped_slashes=" + json_unescaped_slashes
+				jsonUnescapedSlashes := c.String("json_unescaped_slashes")
+				if (jsonUnescapedSlashes != "") {
+					theUrl += "&json_unescaped_slashes=" + jsonUnescapedSlashes
 				}
 
-				include_pids := c.String("include_pids")
-				if (include_pids != "") {
-					include_pids = s2json(include_pids)
-					theurl += "&include_pids=" + include_pids
+				includePids := c.String("include_pids")
+				if (includePids != "") {
+					includePids = s2json(includePids)
+					theUrl += "&include_pids=" + includePids
 				}
 
 				tags := c.String("tags")
 				if (tags != "") {
 					tags = s2json(tags)
-					theurl += "&tags=" + tags
+					theUrl += "&tags=" + tags
 				}
 
-				unzip_to := c.String("unzip_to")
+				unzipTo := c.String("unzip_to")
 
-				sp := spinner.New(spinner.CharSets[9], 100 * time.Millisecond)
-				sp.Start()
+				theSpinner := spinner.New(spinner.CharSets[9], 100 * time.Millisecond)
+				theSpinner.Start()
 				fmt.Print("Requesting...")
-				body := strings.NewReader(theurl)
+				body := strings.NewReader(theUrl)
 				req, err := http.NewRequest("POST", "https://api.lokalise.co/api/project/export", body)
 				if err != nil {
 					log.Fatal(err)
@@ -373,34 +373,34 @@ func main() {
 					file = dat["bundle"].(map[string]interface{})["file"].(string)
 				}
 
-				file_url := "https://s3-eu-west-1.amazonaws.com/lokalise-assets/" + file
+				fileUrl := "https://s3-eu-west-1.amazonaws.com/lokalise-assets/" + file
 				filename := strings.Split(file, "/")[4]
 
-				sp.Stop()
+				theSpinner.Stop()
 
-				c_white := color.New(color.FgHiWhite)
-				c_green := color.New(color.FgGreen)
+				cWhite := color.New(color.FgHiWhite)
+				cGreen := color.New(color.FgGreen)
 
-				c_white.Println()
-				c_white.Print("Remote ")
-				c_green.Print(file_url + "... ")
-				c_white.Println("OK")
+				cWhite.Println()
+				cWhite.Print("Remote ")
+				cGreen.Print(fileUrl + "... ")
+				cWhite.Println("OK")
 
-				c_white.Print("Local ")
-				c_green.Print(dest + "/" + filename + "... ")
+				cWhite.Print("Local ")
+				cGreen.Print(dest + "/" + filename + "... ")
 
-				downloadFile(dest + "/" + filename, file_url)
-				c_white.Println("OK")
+				downloadFile(dest + "/" + filename, fileUrl)
+				cWhite.Println("OK")
 
-				if (unzip_to != "") {
-					files, err := Unzip(dest + "/" + filename, unzip_to)
+				if (unzipTo != "") {
+					files, err := Unzip(dest + "/" + filename, unzipTo)
 
 					if err != nil {
-						c_white.Println("Error unzipping files")
+						cWhite.Println("Error unzipping files")
 					} else {
-						c_white.Print("Unzipped ")
-						c_green.Print(strings.Join(files, ", ") + " ")
-						c_white.Println("OK")
+						cWhite.Print("Unzipped ")
+						cGreen.Print(strings.Join(files, ", ") + " ")
+						cWhite.Println("OK")
 					}
 
 				}
@@ -453,28 +453,28 @@ func main() {
 			Action: func(c *cli.Context) error {
 				var conf Config
 
-				if config_file == "" {
-					config_file = "/etc/lokalise.cfg"
+				if configFile == "" {
+					configFile = "/etc/lokalise.cfg"
 				}
 
-				if _, err := toml.DecodeFile(config_file, &conf); err != nil {
+				if _, err := toml.DecodeFile(configFile, &conf); err != nil {
 					// do nothing if no config
 				}
 
-				if api_token == "" {
-					api_token = conf.Token
+				if apiToken == "" {
+					apiToken = conf.Token
 				}
-				if api_token == "" {
+				if apiToken == "" {
 					return cli.NewExitError("ERROR: --token is required.  Run `lokalise help` for all options.", 5)
 				}
 
-				url := "https://api.lokalise.co/api/project/import"
+				theUrl := "https://api.lokalise.co/api/project/import"
 
-				pid := c.Args().First();
-				if (pid == "") {
-					pid = conf.Project
+				projectId := c.Args().First();
+				if (projectId == "") {
+					projectId = conf.Project
 				}
-				if (pid == "") {
+				if (projectId == "") {
 					return cli.NewExitError("ERROR: Project ID is required as first command option. Run `lokalise help import` for all options.", 5)
 				}
 
@@ -483,17 +483,17 @@ func main() {
 					return cli.NewExitError("ERROR: --file required.  Run `lokalise help import` for all options.", 5)
 				}
 
-				lang_iso := c.String("lang_iso")
-				if lang_iso == "" {
+				langIso := c.String("lang_iso")
+				if langIso == "" {
 					return cli.NewExitError("ERROR: --lang_iso is required. If you are using filemask in --file parameter, make sure escape it (e.g. \\*.json).  Run `lokalise help import` for all options. ", 5)
 				}
 
-				fill_empty := c.String("fill_empty")
+				fillEmpty := c.String("fill_empty")
 				hidden := c.String("hidden")
 				distinguish := c.String("distinguish")
 				replace := c.String("replace")
-				use_trans_mem := c.String("use_trans_mem")
-				replace_breaks := c.String("replace_breaks")
+				useTransMem := c.String("use_trans_mem")
+				replaceBreaks := c.String("replace_breaks")
 
 				tags := c.String("tags")
 				if (tags != "") {
@@ -501,24 +501,24 @@ func main() {
 				}
 
 				extraParams := map[string]string{
-					"id": pid,
-					"api_token": api_token,
-					"lang_iso": lang_iso,
-					"fill_empty": fill_empty,
+					"id": projectId,
+					"api_token": apiToken,
+					"lang_iso": langIso,
+					"fill_empty": fillEmpty,
 					"hidden": hidden,
 					"distinguish": distinguish,
 					"replace": replace,
 					"tags": tags,
-					"use_trans_mem": use_trans_mem,
-					"replace_breaks": replace_breaks,
+					"use_trans_mem": useTransMem,
+					"replace_breaks": replaceBreaks,
 				}
 
-				filemasks := strings.Split(file, ",")
+				fileMasks := strings.Split(file, ",")
 
-				c_white := color.New(color.FgHiWhite)
-				c_green := color.New(color.FgGreen)
+				cWhite := color.New(color.FgHiWhite)
+				cGreen := color.New(color.FgGreen)
 
-				for _, mask := range filemasks {
+				for _, mask := range fileMasks {
 					files, err := filepath.Glob(mask)
 
 					if err != nil {
@@ -526,14 +526,14 @@ func main() {
 					}
 
 					for _, filename := range files {
-						sp := spinner.New(spinner.CharSets[9], 100 * time.Millisecond)
-						sp.Start()
+						theSpinner := spinner.New(spinner.CharSets[9], 100 * time.Millisecond)
+						theSpinner.Start()
 
-						c_white.Print("Uploading ")
-						c_white.Print(filename)
-						c_white.Print("... ")
+						cWhite.Print("Uploading ")
+						cWhite.Print(filename)
+						cWhite.Print("... ")
 
-						request, err := newfileUploadRequest(url, extraParams, "file", filename)
+						request, err := newfileUploadRequest(theUrl, extraParams, "file", filename)
 
 						if err != nil {
 							log.Fatal(err)
@@ -543,7 +543,7 @@ func main() {
 						if err != nil {
 							log.Fatal(err)
 						}
-						sp.Stop()
+						theSpinner.Stop()
 						response, err := ioutil.ReadAll(resp.Body)
 						defer resp.Body.Close()
 
@@ -563,13 +563,13 @@ func main() {
 							inserted, _ := dat["result"].(map[string]interface{})["inserted"].(float64)
 							updated, _ := dat["result"].(map[string]interface{})["updated"].(float64)
 
-							c_green.Print("Inserted ")
-							c_white.Print(inserted)
-							c_green.Print(", skipped ")
-							c_white.Print(skipped)
-							c_green.Print(", updated ")
-							c_white.Print(updated)
-							c_green.Println(" keys.")
+							cGreen.Print("Inserted ")
+							cWhite.Print(inserted)
+							cGreen.Print(", skipped ")
+							cWhite.Print(skipped)
+							cGreen.Print(", updated ")
+							cWhite.Print(updated)
+							cGreen.Println(" keys.")
 						}
 					}
 				}

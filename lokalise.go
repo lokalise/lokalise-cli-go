@@ -31,7 +31,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.47"
+	app.Version = "v0.48"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -337,6 +337,9 @@ func main() {
 
 				unzipTo := c.String("unzip_to")
 
+				cWhite := color.New(color.FgHiWhite)
+				cGreen := color.New(color.FgGreen)
+
 				theSpinner := spinner.New(spinner.CharSets[9], 100 * time.Millisecond)
 				theSpinner.Start()
 				fmt.Print("Requesting...")
@@ -371,6 +374,13 @@ func main() {
 					fmt.Println(e)
 					return cli.NewExitError("ERROR: API returned error (see above)", 7)
 				} else {
+					if (fileType == "android_sdk" || fileType == "ios_sdk") {
+						theSpinner.Stop()
+						cWhite.Println()
+						cWhite.Println("Bundle generated. See project settings to publish to production.")
+						return nil
+					}
+
 					file = dat["bundle"].(map[string]interface{})["file"].(string)
 				}
 
@@ -378,9 +388,6 @@ func main() {
 				filename := strings.Split(file, "/")[4]
 
 				theSpinner.Stop()
-
-				cWhite := color.New(color.FgHiWhite)
-				cGreen := color.New(color.FgGreen)
 
 				cWhite.Println()
 				cWhite.Print("Remote ")

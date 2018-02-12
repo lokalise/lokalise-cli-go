@@ -31,7 +31,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.48"
+	app.Version = "v0.49"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -136,7 +136,11 @@ func main() {
 				},
 				cli.StringFlag{
 					Name: "unzip_to",
-					Usage: "Unzip downloaded bundle to specified directory (/dir)",
+					Usage: "Unzip downloaded bundle to a specified directory (/dir) and remove the .zip. Use --keep_zip to not avoid deletion.",
+				},
+				cli.StringFlag{
+					Name: "keep_zip",
+					Usage: "Keep downloaded .zip, if --unzip_to is used. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name: "langs",
@@ -336,6 +340,10 @@ func main() {
 				}
 
 				unzipTo := c.String("unzip_to")
+				keepZip := c.String("keep_zip")
+				if (keepZip == "") {
+					keepZip = "0"
+				}
 
 				cWhite := color.New(color.FgHiWhite)
 				cGreen := color.New(color.FgGreen)
@@ -359,6 +367,7 @@ func main() {
 				response, err := ioutil.ReadAll(resp.Body)
 				defer resp.Body.Close()
 
+
 				var dat map[string]interface{}
 				if err := json.Unmarshal([]byte(response), &dat); err != nil {
 					panic(err)
@@ -374,13 +383,6 @@ func main() {
 					fmt.Println(e)
 					return cli.NewExitError("ERROR: API returned error (see above)", 7)
 				} else {
-					if (fileType == "android_sdk" || fileType == "ios_sdk") {
-						theSpinner.Stop()
-						cWhite.Println()
-						cWhite.Println("Bundle generated. See project settings to publish to production.")
-						return nil
-					}
-
 					file = dat["bundle"].(map[string]interface{})["file"].(string)
 				}
 
@@ -409,6 +411,9 @@ func main() {
 						cWhite.Print("Unzipped ")
 						cGreen.Print(strings.Join(files, ", ") + " ")
 						cWhite.Println("OK")
+						if (keepZip == "0") {
+							os.Remove(dest + "/" + filename)
+						}
 					}
 
 				}

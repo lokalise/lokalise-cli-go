@@ -66,7 +66,7 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "json_unescaped_slashes", boolString(opts.JSONUnescapedSlashes))
 	formAdd(form, "triggers", jsonArray(opts.Triggers))
 
-	req, err := http.NewRequest("POST", api("/project/export"), strings.NewReader(form.Encode()))
+	req, err := http.NewRequest("POST", api("project/export"), strings.NewReader(form.Encode()))
 	if err != nil {
 		return Bundle{}, err
 	}

@@ -17,6 +17,7 @@ type ImportOptions struct {
 	FillEmpty     *bool
 	Distinguish   *bool
 	Hidden        *bool
+	UseTransMem   *bool
 	Tags          []string
 	ReplaceBreaks *bool
 }
@@ -107,6 +108,10 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 			return nil, err
 		}
 		multipartAdd(writer, "replace", boolString(opts.Replace))
+		if err != nil {
+			return nil, err
+		}
+		multipartAdd(writer, "use_trans_mem", boolString(opts.UseTransMem))
 		if err != nil {
 			return nil, err
 		}

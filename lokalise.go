@@ -369,12 +369,10 @@ func main() {
 					FillEmpty:     optionalBool(c.String("fill_empty")),
 					Distinguish:   optionalBool(c.String("distinguish")),
 					Hidden:        optionalBool(c.String("hidden")),
+					UseTransMem:   optionalBool(c.String("use_trans_mem")),
 					Tags:          commaSlice(c.String("tags")),
 					ReplaceBreaks: optionalBool(c.String("replace_breaks")),
 				}
-
-				// FIXME: undocumented
-				// useTransMem := c.String("use_trans_mem")
 
 				cWhite := color.New(color.FgHiWhite)
 				cGreen := color.New(color.FgGreen)

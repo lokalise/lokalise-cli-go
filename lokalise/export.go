@@ -24,6 +24,7 @@ type ExportOptions struct {
 	ReplaceBreaks        *bool
 	YAMLIncludeRoot      *bool
 	JSONUnescapedSlashes *bool
+	NoLanguageFolders    *bool
 	Triggers             []string
 }
 

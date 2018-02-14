@@ -101,15 +101,15 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "type",
-					Usage: "File format (strings, xliff, plist, xml, properties, json, po, php, ini, yml, xls) (single value, required)",
+					Usage: "File format to export. See https://lokalise.co/apidocs#file_formats (single value, required)",
 				},
 				cli.StringFlag{
 					Name:  "dest",
-					Usage: "Destination directory on local filesystem (for the .zip bundle) (/dir)",
+					Usage: "Destination directory on local filesystem (for the .zip bundle). (/dir)",
 				},
 				cli.StringFlag{
 					Name:  "unzip_to",
-					Usage: "Unzip downloaded bundle to a specified directory (/dir) and remove the .zip. Use --keep_zip to not avoid deletion.",
+					Usage: "Unzip downloaded bundle to a specified directory and remove the .zip. Use --keep_zip to avoid the deletion. (/dir)",
 				},
 				cli.StringFlag{
 					Name:  "keep_zip",
@@ -121,39 +121,35 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "use_original",
-					Usage: "Use original filenames/formats (`0/1`)",
+					Usage: "Use original filenames/formats. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "filter",
-					Usage: "Filter by 'translated', 'nonfuzzy', 'nonhidden' fields (comma separated)",
+					Usage: "Filter by 'translated', 'nonfuzzy', 'nonhidden' fields.(comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "bundle_structure",
-					Usage: ".ZIP bundle structure (see docs.lokalise.co for placeholders)",
+					Usage: ".ZIP bundle structure (see docs.lokalise.co for placeholders).",
 				},
 				cli.StringFlag{
 					Name:  "webhook_url",
-					Usage: "Sends POST['file'] if specified (url)",
+					Usage: "Sends POST['file'] if specified. (url)",
 				},
 				cli.StringFlag{
 					Name:  "export_all",
-					Usage: "Include all platform keys (`0/1`)",
-				},
-				cli.StringFlag{
-					Name:  "ota_plugin_bundle",
-					Usage: "Generate plugin for OTA iOS plugin (`0/1`)",
+					Usage: "Include all platform keys. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "export_empty",
-					Usage: "How to export empty strings (empty, base, skip)",
+					Usage: "How to export empty strings. (empty, base, skip)",
 				},
 				cli.StringFlag{
 					Name:  "include_comments",
-					Usage: "Include comments in exported file (`0/1`)",
+					Usage: "Include comments in exported file. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "include_pids",
-					Usage: "Other projects ID's, which keys to include in this export (comma separated)",
+					Usage: "Other projects ID's, which keys to include in this export. (comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "tags",
@@ -161,11 +157,11 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "yaml_include_root",
-					Usage: "Include language ISO code as root key in YAML export (`0/1`)",
+					Usage: "Include language ISO code as root key in YAML export. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "json_unescaped_slashes",
-					Usage: "Leave forward slashes unescaped in JSON export (`0/1`)",
+					Usage: "Leave forward slashes unescaped in JSON export. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "export_sort",
@@ -173,15 +169,15 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "replace_breaks",
-					Usage: "Replace link breaks with \\n (`0/1`)",
+					Usage: "Replace link breaks with \\n. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "no_language_folders",
-					Usage: "Don't use language folders (`0/1`)",
+					Usage: "Don't use language folders. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "triggers",
-					Usage: "Trigger integration export. Allowed values are 'amazons3' and 'gcs' (comma separated)",
+					Usage: "Trigger integration export. Allowed values are 'amazons3' and 'gcs'. (comma separated)",
 				},
 			},
 			Action: func(c *cli.Context) error {
@@ -230,22 +226,13 @@ func main() {
 					ReplaceBreaks:        optionalBool(c.String("replace_breaks")),
 					YAMLIncludeRoot:      optionalBool(c.String("yaml_include_root")),
 					JSONUnescapedSlashes: optionalBool(c.String("json_unescaped_slashes")),
+					NoLanguageFolders:    optionalBool(c.String("no_language_folders")),
 					Languages:            commaSlice(c.String("langs")),
 					Filter:               commaSlice(c.String("filter")),
 					Triggers:             commaSlice(c.String("triggers")),
 					IncludePIDs:          commaSlice(c.String("include_pids")),
 					Tags:                 commaSlice(c.String("tags")),
 				}
-
-				// FIXME: missing in documentation
-				// noLanguageFolders := c.String("no_language_folders")
-				// if noLanguageFolders != "" {
-				// 	theURL += "&switch_no_language_folders=" + noLanguageFolders
-				// }
-				// otaPluginBundle := c.String("ota_plugin_bundle")
-				// if otaPluginBundle != "" {
-				// 	theURL += "&ota_plugin_bundle=" + otaPluginBundle
-				// }
 
 				unzipTo := c.String("unzip_to")
 				keepZip := c.String("keep_zip")
@@ -306,39 +293,39 @@ func main() {
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "file",
-					Usage: "A single file, or comma-separated list of files or file masks on local filesystem to import (any of the supported file formats) (required). Make sure to escape * if using file masks (\\*).",
+					Usage: "A single file, or a comma-separated list of files or file masks on the local filesystem to import (any of the supported file formats) (required). Make sure to escape * if using file masks (\\*).",
 				},
 				cli.StringFlag{
 					Name:  "lang_iso",
-					Usage: "Language of the translations being imported (reqired)",
+					Usage: "Language of the translations in the file being imported. Applies to all files, if using a list of a file mask. (reqired)",
 				},
 				cli.StringFlag{
 					Name:  "replace",
-					Usage: "Shall existing translations be replaced (`0/1`)",
+					Usage: "Shall existing translations be replaced. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "fill_empty",
-					Usage: "If values are empty, keys will be copied to values (`0/1`)",
+					Usage: "If values are empty, keys will be copied to values. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "distinguish",
-					Usage: "Distinguish similar keys in different files (`0/1`)",
+					Usage: "Distinguish similar keys in different files. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "hidden",
-					Usage: "Hide imported keys from contributors (`0/1`)",
+					Usage: "Hide imported keys from contributors. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "tags",
-					Usage: "Tags list for newly imported keys (comma separated)",
+					Usage: "Tags list for newly imported keys. (comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "use_trans_mem",
-					Usage: "Use translation memory to fill 100% matches (`0/1`)",
+					Usage: "Use translation memory to fill 100% matches. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "replace_breaks",
-					Usage: "Replace \\n with line breaks (`0/1`)",
+					Usage: "Replace \\n with line breaks. (`0/1`)",
 				},
 			},
 			Action: func(c *cli.Context) error {

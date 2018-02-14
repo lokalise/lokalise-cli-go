@@ -2,15 +2,11 @@ package main
 
 import (
 	"archive/zip"
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"log"
-	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -18,6 +14,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
+	"github.com/lokalise/lokalise-cli-go/lokalise"
 	"github.com/urfave/cli"
 )
 
@@ -73,27 +70,9 @@ func main() {
 					return cli.NewExitError("ERROR: --token is required.  Run `lokalise help` for all options.", 5)
 				}
 
-				res, err := http.Get("https://api.lokalise.co/api/project/list?api_token=" + apiToken)
+				projects, err := lokalise.List(apiToken)
 				if err != nil {
-					log.Fatal(err)
-				}
-
-				response, err := ioutil.ReadAll(res.Body)
-				res.Body.Close()
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				var dat map[string]interface{}
-				if err := json.Unmarshal([]byte(response), &dat); err != nil {
-					panic(err)
-				}
-
-				status := dat["response"].(map[string]interface{})["status"]
-
-				if status == "error" {
-					e := dat["response"].(map[string]interface{})["message"]
-					fmt.Println(e)
+					fmt.Printf("%v\n", err)
 					return cli.NewExitError("ERROR: API returned error (see above)", 7)
 				}
 
@@ -102,21 +81,14 @@ func main() {
 				cRed := color.New(color.FgRed)
 				cCyan := color.New(color.FgCyan)
 
-				for _, v := range dat {
-					switch vv := v.(type) {
-					case []interface{}:
-						for _, u := range vv {
-							project := u.(map[string]interface{})
-
-							cWhite.Print(project["id"])
-							if project["owner"] == "1" {
-								cGreen.Print(" (admin) ")
-							} else {
-								cRed.Print(" (contr) ")
-							}
-							cCyan.Println(" ", project["name"])
-						}
+				for _, project := range projects {
+					cWhite.Print(project.ID)
+					if project.Owner == "1" {
+						cGreen.Print(" (admin) ")
+					} else {
+						cRed.Print(" (contr) ")
 					}
+					cCyan.Print(" ", project.Name)
 				}
 
 				return nil
@@ -238,107 +210,42 @@ func main() {
 					return cli.NewExitError("ERROR: Project ID is required as first command option. Run `lokalise help export` for all options.", 5)
 				}
 
-				dest := c.String("dest")
-				if dest == "" {
-					dest = "."
-				}
-
 				fileType := c.String("type")
 				if fileType == "" {
 					return cli.NewExitError("ERROR: --type is required. Run `lokalise help export` for all options.", 5)
 				}
 
-				theURL := "api_token=" + apiToken + `&id=` + projectID + `&type=` + fileType
-
-				langs := c.String("langs")
-				if langs != "" {
-					langs = s2json(langs)
-					theURL += "&langs=" + langs
+				dest := c.String("dest")
+				if dest == "" {
+					dest = "."
+				}
+				opts := lokalise.ExportOptions{
+					UseOriginal:          optionalBool(c.String("use_original")),
+					BundleStructure:      optionalString(c.String("bundle_structure")),
+					WebhookURL:           optionalString(c.String("webhook_url")),
+					ExportAll:            optionalBool(c.String("export_all")),
+					ExportEmpty:          optionalString(c.String("export_empty")),
+					ExportSort:           optionalString(c.String("export_sort")),
+					IncludeComments:      optionalBool(c.String("include_comments")),
+					ReplaceBreaks:        optionalBool(c.String("replace_breaks")),
+					YAMLIncludeRoot:      optionalBool(c.String("yaml_include_root")),
+					JSONUnescapedSlashes: optionalBool(c.String("json_unescaped_slashes")),
+					Languages:            commaSlice(c.String("langs")),
+					Filter:               commaSlice(c.String("filter")),
+					Triggers:             commaSlice(c.String("triggers")),
+					IncludePIDs:          commaSlice(c.String("include_pids")),
+					Tags:                 commaSlice(c.String("tags")),
 				}
 
-				useOriginal := c.String("use_original")
-				if useOriginal != "" {
-					theURL += "&use_original=" + useOriginal
-				}
-
-				noLanguageFolders := c.String("no_language_folders")
-				if noLanguageFolders != "" {
-					theURL += "&switch_no_language_folders=" + noLanguageFolders
-				}
-
-				filter := c.String("filter")
-				if filter != "" {
-					filter = s2json(filter)
-					theURL += "&filter=" + filter
-				}
-
-				triggers := c.String("triggers")
-				if triggers != "" {
-					triggers = s2json(triggers)
-					theURL += "&triggers=" + triggers
-				}
-
-				bundleStructure := c.String("bundle_structure")
-				if bundleStructure != "" {
-					theURL += "&bundle_structure=" + bundleStructure
-				}
-
-				webhookURL := c.String("webhook_url")
-				if webhookURL != "" {
-					theURL += "&webhook_url=" + webhookURL
-				}
-
-				exportAll := c.String("export_all")
-				if exportAll != "" {
-					theURL += "&export_all=" + exportAll
-				}
-
-				otaPluginBundle := c.String("ota_plugin_bundle")
-				if otaPluginBundle != "" {
-					theURL += "&ota_plugin_bundle=" + otaPluginBundle
-				}
-
-				exportEmpty := c.String("export_empty")
-				if exportEmpty != "" {
-					theURL += "&export_empty=" + exportEmpty
-				}
-
-				exportSort := c.String("export_sort")
-				if exportSort != "" {
-					theURL += "&export_sort=" + exportSort
-				}
-
-				includeComments := c.String("include_comments")
-				if includeComments != "" {
-					theURL += "&include_comments=" + includeComments
-				}
-
-				replaceBreaks := c.String("replace_breaks")
-				if replaceBreaks != "" {
-					theURL += "&replace_breaks=" + replaceBreaks
-				}
-
-				yamlIncludeRoot := c.String("yaml_include_root")
-				if yamlIncludeRoot != "" {
-					theURL += "&yaml_include_root=" + yamlIncludeRoot
-				}
-
-				jsonUnescapedSlashes := c.String("json_unescaped_slashes")
-				if jsonUnescapedSlashes != "" {
-					theURL += "&json_unescaped_slashes=" + jsonUnescapedSlashes
-				}
-
-				includePids := c.String("include_pids")
-				if includePids != "" {
-					includePids = s2json(includePids)
-					theURL += "&include_pids=" + includePids
-				}
-
-				tags := c.String("tags")
-				if tags != "" {
-					tags = s2json(tags)
-					theURL += "&tags=" + tags
-				}
+				// FIXME: missing in documentation
+				// noLanguageFolders := c.String("no_language_folders")
+				// if noLanguageFolders != "" {
+				// 	theURL += "&switch_no_language_folders=" + noLanguageFolders
+				// }
+				// otaPluginBundle := c.String("ota_plugin_bundle")
+				// if otaPluginBundle != "" {
+				// 	theURL += "&ota_plugin_bundle=" + otaPluginBundle
+				// }
 
 				unzipTo := c.String("unzip_to")
 				keepZip := c.String("keep_zip")
@@ -352,57 +259,29 @@ func main() {
 				theSpinner := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 				theSpinner.Start()
 				fmt.Print("Requesting...")
-				body := strings.NewReader(theURL)
-				req, err := http.NewRequest("POST", "https://api.lokalise.co/api/project/export", body)
+
+				bundle, err := lokalise.Export(apiToken, projectID, fileType, &opts)
+				theSpinner.Stop()
 				if err != nil {
-					log.Fatal(err)
-				}
-
-				req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-				resp, err := http.DefaultClient.Do(req)
-
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				response, err := ioutil.ReadAll(resp.Body)
-				defer resp.Body.Close()
-
-				var dat map[string]interface{}
-				if err := json.Unmarshal([]byte(response), &dat); err != nil {
-					panic(err)
-				}
-
-				var file string
-				file = ""
-
-				status := dat["response"].(map[string]interface{})["status"]
-
-				if status == "error" {
-					e := dat["response"].(map[string]interface{})["message"]
-					fmt.Println(e)
+					fmt.Printf("\n%v\n", err)
 					return cli.NewExitError("ERROR: API returned error (see above)", 7)
 				}
-				file = dat["bundle"].(map[string]interface{})["file"].(string)
 
-				fileURL := "https://s3-eu-west-1.amazonaws.com/lokalise-assets/" + file
-				filename := strings.Split(file, "/")[4]
-
-				theSpinner.Stop()
+				filename := strings.Split(bundle.File, "/")[4]
 
 				cWhite.Println()
 				cWhite.Print("Remote ")
-				cGreen.Print(fileURL + "... ")
+				cGreen.Print(bundle.FullFile + "... ")
 				cWhite.Println("OK")
 
 				cWhite.Print("Local ")
-				cGreen.Print(dest + "/" + filename + "... ")
+				cGreen.Print(path.Join(dest, filename) + "... ")
 
-				downloadFile(dest+"/"+filename, fileURL)
+				downloadFile(path.Join(dest, filename), bundle.FullFile)
 				cWhite.Println("OK")
 
 				if unzipTo != "" {
-					files, err := Unzip(dest+"/"+filename, unzipTo)
+					files, err := unzip(path.Join(dest, filename), unzipTo)
 
 					if err != nil {
 						cWhite.Println("Error unzipping files")
@@ -411,7 +290,7 @@ func main() {
 						cGreen.Print(strings.Join(files, ", ") + " ")
 						cWhite.Println("OK")
 						if keepZip == "0" {
-							os.Remove(dest + "/" + filename)
+							os.Remove(path.Join(dest, filename))
 						}
 					}
 
@@ -480,8 +359,6 @@ func main() {
 					return cli.NewExitError("ERROR: --token is required.  Run `lokalise help` for all options.", 5)
 				}
 
-				theURL := "https://api.lokalise.co/api/project/import"
-
 				projectID := c.Args().First()
 				if projectID == "" {
 					projectID = conf.Project
@@ -500,87 +377,44 @@ func main() {
 					return cli.NewExitError("ERROR: --lang_iso is required. If you are using filemask in --file parameter, make sure escape it (e.g. \\*.json).  Run `lokalise help import` for all options. ", 5)
 				}
 
-				fillEmpty := c.String("fill_empty")
-				hidden := c.String("hidden")
-				distinguish := c.String("distinguish")
-				replace := c.String("replace")
-				useTransMem := c.String("use_trans_mem")
-				replaceBreaks := c.String("replace_breaks")
-
-				tags := c.String("tags")
-				if tags != "" {
-					tags = s2json(tags)
+				importOptions := lokalise.ImportOptions{
+					Replace:       optionalBool(c.String("replace")),
+					FillEmpty:     optionalBool(c.String("fill_empty")),
+					Distinguish:   optionalBool(c.String("distinguish")),
+					Hidden:        optionalBool(c.String("hidden")),
+					Tags:          commaSlice(c.String("tags")),
+					ReplaceBreaks: optionalBool(c.String("replace_breaks")),
 				}
 
-				extraParams := map[string]string{
-					"id":             projectID,
-					"api_token":      apiToken,
-					"lang_iso":       langIso,
-					"fill_empty":     fillEmpty,
-					"hidden":         hidden,
-					"distinguish":    distinguish,
-					"replace":        replace,
-					"tags":           tags,
-					"use_trans_mem":  useTransMem,
-					"replace_breaks": replaceBreaks,
-				}
-
-				fileMasks := strings.Split(file, ",")
+				// FIXME: undocumented
+				// useTransMem := c.String("use_trans_mem")
 
 				cWhite := color.New(color.FgHiWhite)
 				cGreen := color.New(color.FgGreen)
 
+				fileMasks := strings.Split(file, ",")
 				for _, mask := range fileMasks {
 					files, err := filepath.Glob(mask)
-
 					if err != nil {
-						log.Fatal(err)
+						return cli.NewExitError("ERROR: file glob pattern not valid", 5)
 					}
 
 					for _, filename := range files {
 						theSpinner := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
+						cWhite.Printf("Uploading %s... ", filename)
 						theSpinner.Start()
-
-						cWhite.Print("Uploading ")
-						cWhite.Print(filename)
-						cWhite.Print("... ")
-
-						request, err := newfileUploadRequest(theURL, extraParams, "file", filename)
-
-						if err != nil {
-							log.Fatal(err)
-						}
-						client := &http.Client{}
-						resp, err := client.Do(request)
-						if err != nil {
-							log.Fatal(err)
-						}
+						result, err := lokalise.Import(apiToken, projectID, file, langIso, &importOptions)
 						theSpinner.Stop()
-						response, err := ioutil.ReadAll(resp.Body)
-						defer resp.Body.Close()
-
-						var dat map[string]interface{}
-						if err := json.Unmarshal([]byte(response), &dat); err != nil {
-							panic(err)
-						}
-
-						status := dat["response"].(map[string]interface{})["status"]
-
-						if status == "error" {
-							e := dat["response"].(map[string]interface{})["message"]
-							fmt.Println(e)
+						if err != nil {
+							fmt.Printf("\n%v\n", err)
 							return cli.NewExitError("ERROR: API returned error (see above)", 7)
 						}
-						skipped, _ := dat["result"].(map[string]interface{})["skipped"].(float64)
-						inserted, _ := dat["result"].(map[string]interface{})["inserted"].(float64)
-						updated, _ := dat["result"].(map[string]interface{})["updated"].(float64)
-
 						cGreen.Print("Inserted ")
-						cWhite.Print(inserted)
+						cWhite.Print(result.Inserted)
 						cGreen.Print(", skipped ")
-						cWhite.Print(skipped)
+						cWhite.Print(result.Skipped)
 						cGreen.Print(", updated ")
-						cWhite.Print(updated)
+						cWhite.Print(result.Updated)
 						cGreen.Println(" keys.")
 					}
 				}
@@ -612,40 +446,32 @@ func downloadFile(filepath string, url string) (err error) {
 	return nil
 }
 
-func newfileUploadRequest(uri string, params map[string]string, paramName, path string) (*http.Request, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
+func commaSlice(v string) []string {
+	if v == "" {
+		return nil
 	}
-	defer file.Close()
-
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile(paramName, filepath.Base(path))
-	if err != nil {
-		return nil, err
-	}
-	_, err = io.Copy(part, file)
-
-	for key, val := range params {
-		_ = writer.WriteField(key, val)
-	}
-	err = writer.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	req, _ := http.NewRequest("POST", uri, body)
-	req.Header.Add("Content-Type", writer.FormDataContentType())
-
-	return req, nil
+	return strings.Split(v, ",")
 }
 
-func s2json(s string) string {
-	return "['" + strings.Join(strings.Split(s, ","), "','") + "']"
+func optionalBool(v string) *bool {
+	if v == "" {
+		return nil
+	}
+	var b bool
+	if v == "1" {
+		b = true
+	}
+	return &b
 }
 
-func Unzip(src, dest string) ([]string, error) {
+func optionalString(v string) *string {
+	if v == "" {
+		return nil
+	}
+	return &v
+}
+
+func unzip(src, dest string) ([]string, error) {
 	var filenames []string
 
 	r, err := zip.OpenReader(src)
@@ -674,7 +500,6 @@ func Unzip(src, dest string) ([]string, error) {
 
 			err = os.MkdirAll(fdir, os.ModePerm)
 			if err != nil {
-				log.Fatal(err)
 				return filenames, err
 			}
 			f, err := os.OpenFile(

@@ -63,6 +63,7 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "tags", jsonArray(opts.Tags))
 	formAdd(form, "export_sort", opts.ExportSort)
 	formAdd(form, "replace_breaks", boolString(opts.ReplaceBreaks))
+	formAdd(form, "no_language_folders", boolString(opts.NoLanguageFolders))
 	formAdd(form, "yaml_include_root", boolString(opts.YAMLIncludeRoot))
 	formAdd(form, "json_unescaped_slashes", boolString(opts.JSONUnescapedSlashes))
 	formAdd(form, "triggers", jsonArray(opts.Triggers))

@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.49"
+	app.Version = "v0.50"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -178,6 +178,14 @@ func main() {
 				cli.StringFlag{
 					Name:  "triggers",
 					Usage: "Trigger integration export. Allowed values are 'amazons3' and 'gcs'. (comma separated)",
+				},
+				cli.StringFlag{
+					Name:  "plural_format",
+					Usage: "Override default plural format. See https://lokalise.co/apidocs#pl_ph_formats (value).",
+				},
+				cli.StringFlag{
+					Name:  "placeholder_format",
+					Usage: "Override default placeholder format. See https://lokalise.co/apidocs#pl_ph_formats (value).",
 				},
 			},
 			Action: func(c *cli.Context) error {

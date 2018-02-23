@@ -26,6 +26,8 @@ type ExportOptions struct {
 	JSONUnescapedSlashes *bool
 	NoLanguageFolders    *bool
 	Triggers             []string
+	PluralFormat         []string
+	PlaceholderFormat    []string
 }
 
 // Bundle represents file locations for a project export bundle. If a webhook URL was
@@ -67,6 +69,8 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "yaml_include_root", boolString(opts.YAMLIncludeRoot))
 	formAdd(form, "json_unescaped_slashes", boolString(opts.JSONUnescapedSlashes))
 	formAdd(form, "triggers", jsonArray(opts.Triggers))
+	formAdd(form, "plural_format", jsonArray(opts.PluralFormat))
+	formAdd(form, "placeholder_format", jsonArray(opts.PlaceholderFormat))
 
 	req, err := http.NewRequest("POST", api("project/export"), strings.NewReader(form.Encode()))
 	if err != nil {

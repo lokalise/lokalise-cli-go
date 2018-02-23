@@ -20,6 +20,7 @@ type ImportOptions struct {
 	UseTransMem   *bool
 	Tags          []string
 	ReplaceBreaks *bool
+	IcuPlurals    *bool
 }
 
 // ImportResult represents the outcome of a file upload.
@@ -116,6 +117,10 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 			return nil, err
 		}
 		multipartAdd(writer, "replace_breaks", boolString(opts.ReplaceBreaks))
+		if err != nil {
+			return nil, err
+		}
+		multipartAdd(writer, "icu_plurals", boolString(opts.IcuPlurals))
 		if err != nil {
 			return nil, err
 		}

@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.50"
+	app.Version = "v0.51"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -238,6 +238,8 @@ func main() {
 					Languages:            commaSlice(c.String("langs")),
 					Filter:               commaSlice(c.String("filter")),
 					Triggers:             commaSlice(c.String("triggers")),
+					PluralFormat:         commaSlice(c.String("plural_format")),
+					PlaceholderFormat:    commaSlice(c.String("placeholder_format")),
 					IncludePIDs:          commaSlice(c.String("include_pids")),
 					Tags:                 commaSlice(c.String("tags")),
 				}
@@ -316,6 +318,10 @@ func main() {
 					Usage: "If values are empty, keys will be copied to values. (`0/1`)",
 				},
 				cli.StringFlag{
+					Name:  "icu_plurals",
+					Usage: "Enable to automatically detect and parse ICU formatted plurals. (`0/1`)",
+				},
+				cli.StringFlag{
 					Name:  "distinguish",
 					Usage: "Distinguish similar keys in different files. (`0/1`)",
 				},
@@ -374,6 +380,7 @@ func main() {
 
 				importOptions := lokalise.ImportOptions{
 					Replace:       optionalBool(c.String("replace")),
+					IcuPlurals:    optionalBool(c.String("icu_plurals")),
 					FillEmpty:     optionalBool(c.String("fill_empty")),
 					Distinguish:   optionalBool(c.String("distinguish")),
 					Hidden:        optionalBool(c.String("hidden")),

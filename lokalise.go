@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.51"
+	app.Version = "v0.52"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -184,6 +184,10 @@ func main() {
 					Usage: "Override default plural format. See https://lokalise.co/apidocs#pl_ph_formats (value).",
 				},
 				cli.StringFlag{
+					Name:  "icu_numeric",
+					Usage: "Use =0, =1, =2 instead of zero, one, two plural forms. Works with ICU plurals only. (`0/1`)",
+				},
+				cli.StringFlag{
 					Name:  "placeholder_format",
 					Usage: "Override default placeholder format. See https://lokalise.co/apidocs#pl_ph_formats (value).",
 				},
@@ -235,6 +239,7 @@ func main() {
 					YAMLIncludeRoot:      optionalBool(c.String("yaml_include_root")),
 					JSONUnescapedSlashes: optionalBool(c.String("json_unescaped_slashes")),
 					NoLanguageFolders:    optionalBool(c.String("no_language_folders")),
+					ICUNumeric:           optionalBool(c.String("icu_numeric")),
 					Languages:            commaSlice(c.String("langs")),
 					Filter:               commaSlice(c.String("filter")),
 					Triggers:             commaSlice(c.String("triggers")),

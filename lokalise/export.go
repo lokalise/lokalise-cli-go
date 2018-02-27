@@ -27,6 +27,7 @@ type ExportOptions struct {
 	NoLanguageFolders    *bool
 	Triggers             []string
 	PluralFormat         []string
+	ICUNumeric	     *bool
 	PlaceholderFormat    []string
 }
 
@@ -70,6 +71,7 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "json_unescaped_slashes", boolString(opts.JSONUnescapedSlashes))
 	formAdd(form, "triggers", jsonArray(opts.Triggers))
 	formAdd(form, "plural_format", jsonArray(opts.PluralFormat))
+	formAdd(form, "icu_numeric", boolString(opts.ICUNumeric))
 	formAdd(form, "placeholder_format", jsonArray(opts.PlaceholderFormat))
 
 	req, err := http.NewRequest("POST", api("project/export"), strings.NewReader(form.Encode()))

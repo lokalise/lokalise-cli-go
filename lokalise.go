@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.52"
+	app.Version = "v0.53"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -408,7 +408,7 @@ func main() {
 						theSpinner := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 						cWhite.Printf("Uploading %s... ", filename)
 						theSpinner.Start()
-						result, err := lokalise.Import(apiToken, projectID, file, langIso, &importOptions)
+						result, err := lokalise.Import(apiToken, projectID, filename, langIso, &importOptions)
 						theSpinner.Stop()
 						if err != nil {
 							fmt.Printf("\n%v\n", err)

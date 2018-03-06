@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.53"
+	app.Version = "v0.532"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -234,6 +234,8 @@ func main() {
 					ExportAll:            optionalBool(c.String("export_all")),
 					ExportEmpty:          optionalString(c.String("export_empty")),
 					ExportSort:           optionalString(c.String("export_sort")),
+					PlaceholderFormat:    optionalString(c.String("placeholder_format")),
+					PluralFormat:         optionalString(c.String("plural_format")),
 					IncludeComments:      optionalBool(c.String("include_comments")),
 					ReplaceBreaks:        optionalBool(c.String("replace_breaks")),
 					YAMLIncludeRoot:      optionalBool(c.String("yaml_include_root")),
@@ -243,8 +245,6 @@ func main() {
 					Languages:            commaSlice(c.String("langs")),
 					Filter:               commaSlice(c.String("filter")),
 					Triggers:             commaSlice(c.String("triggers")),
-					PluralFormat:         commaSlice(c.String("plural_format")),
-					PlaceholderFormat:    commaSlice(c.String("placeholder_format")),
 					IncludePIDs:          commaSlice(c.String("include_pids")),
 					Tags:                 commaSlice(c.String("tags")),
 				}

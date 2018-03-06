@@ -17,6 +17,8 @@ type ExportOptions struct {
 	WebhookURL           *string
 	ExportAll            *bool
 	ExportEmpty          *string
+	PlaceholderFormat    *string
+	PluralFormat         *string
 	IncludeComments      *bool
 	IncludePIDs          []string
 	Tags                 []string
@@ -26,9 +28,7 @@ type ExportOptions struct {
 	JSONUnescapedSlashes *bool
 	NoLanguageFolders    *bool
 	Triggers             []string
-	PluralFormat         []string
 	ICUNumeric	     *bool
-	PlaceholderFormat    []string
 }
 
 // Bundle represents file locations for a project export bundle. If a webhook URL was
@@ -61,6 +61,8 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "webhook_url", opts.WebhookURL)
 	formAdd(form, "export_all", boolString(opts.ExportAll))
 	formAdd(form, "export_empty", opts.ExportEmpty)
+	formAdd(form, "placeholder_format", opts.PlaceholderFormat)
+	formAdd(form, "plural_format", opts.PluralFormat)
 	formAdd(form, "include_comments", boolString(opts.IncludeComments))
 	formAdd(form, "include_pids", jsonArray(opts.IncludePIDs))
 	formAdd(form, "tags", jsonArray(opts.Tags))
@@ -70,9 +72,7 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "yaml_include_root", boolString(opts.YAMLIncludeRoot))
 	formAdd(form, "json_unescaped_slashes", boolString(opts.JSONUnescapedSlashes))
 	formAdd(form, "triggers", jsonArray(opts.Triggers))
-	formAdd(form, "plural_format", jsonArray(opts.PluralFormat))
 	formAdd(form, "icu_numeric", boolString(opts.ICUNumeric))
-	formAdd(form, "placeholder_format", jsonArray(opts.PlaceholderFormat))
 
 	req, err := http.NewRequest("POST", api("project/export"), strings.NewReader(form.Encode()))
 	if err != nil {

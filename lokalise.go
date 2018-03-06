@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.532"
+	app.Version = "v0.54"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -343,6 +343,10 @@ func main() {
 					Usage: "Use translation memory to fill 100% matches. (`0/1`)",
 				},
 				cli.StringFlag{
+					Name:  "include_path",
+					Usage: "Include relative directory name in the filename when uploading. (`0/1`)",
+				},
+				cli.StringFlag{
 					Name:  "replace_breaks",
 					Usage: "Replace \\n with line breaks. (`0/1`)",
 				},
@@ -388,6 +392,7 @@ func main() {
 					IcuPlurals:    optionalBool(c.String("icu_plurals")),
 					FillEmpty:     optionalBool(c.String("fill_empty")),
 					Distinguish:   optionalBool(c.String("distinguish")),
+					IncludePath:   optionalBool(c.String("include_path")),
 					Hidden:        optionalBool(c.String("hidden")),
 					UseTransMem:   optionalBool(c.String("use_trans_mem")),
 					Tags:          commaSlice(c.String("tags")),

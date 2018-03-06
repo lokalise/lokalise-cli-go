@@ -18,6 +18,7 @@ type ImportOptions struct {
 	Distinguish   *bool
 	Hidden        *bool
 	UseTransMem   *bool
+	IncludePath   *bool
 	Tags          []string
 	ReplaceBreaks *bool
 	IcuPlurals    *bool
@@ -123,6 +124,12 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 		multipartAdd(writer, "icu_plurals", boolString(opts.IcuPlurals))
 		if err != nil {
 			return nil, err
+		}
+		if *opts.IncludePath == true {
+			multipartAdd(writer, "filename", &path)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	err = writer.Close()

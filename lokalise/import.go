@@ -114,7 +114,7 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 		if err != nil {
 			return nil, err
 		}
-		multipartAdd(writer, "convert_placeholders", boolString(opts.Replace))
+		multipartAdd(writer, "convert_placeholders", boolString(opts.ConvertPlaceholders))
 		if err != nil {
 			return nil, err
 		}

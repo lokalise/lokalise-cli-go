@@ -13,15 +13,16 @@ import (
 
 // ImportOptions represents available options for importing files to a project.
 type ImportOptions struct {
-	Replace       *bool
-	FillEmpty     *bool
-	Distinguish   *bool
-	Hidden        *bool
-	UseTransMem   *bool
-	IncludePath   *bool
-	Tags          []string
-	ReplaceBreaks *bool
-	IcuPlurals    *bool
+	Replace       	    *bool
+	ConvertPlaceholders *bool
+	FillEmpty           *bool
+	Distinguish         *bool
+	Hidden              *bool
+	UseTransMem         *bool
+	IncludePath         *bool
+	Tags                []string
+	ReplaceBreaks       *bool
+	IcuPlurals          *bool
 }
 
 // ImportResult represents the outcome of a file upload.
@@ -113,6 +114,10 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 		if err != nil {
 			return nil, err
 		}
+		multipartAdd(writer, "convert_placeholders", boolString(opts.Replace))
+		if err != nil {
+			return nil, err
+		}
 		multipartAdd(writer, "use_trans_mem", boolString(opts.UseTransMem))
 		if err != nil {
 			return nil, err
@@ -125,7 +130,7 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 		if err != nil {
 			return nil, err
 		}
-		if *opts.IncludePath == true {
+		if opts.IncludePath != nil {
 			multipartAdd(writer, "filename", &path)
 			if err != nil {
 				return nil, err

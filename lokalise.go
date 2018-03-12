@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.54"
+	app.Version = "v0.551"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -88,7 +88,7 @@ func main() {
 					} else {
 						cRed.Print(" (contr) ")
 					}
-					cCyan.Print(" ", project.Name)
+					cCyan.Println(" ", project.Name)
 				}
 
 				return nil
@@ -319,6 +319,10 @@ func main() {
 					Usage: "Shall existing translations be replaced. (`0/1`)",
 				},
 				cli.StringFlag{
+					Name:  "convert_placeholders",
+					Usage: "Convert placeholders to Lokalise universal ones. https://docs.lokalise.co/developer-docs/universal-placeholders (`0/1`)",
+				},
+				cli.StringFlag{
 					Name:  "fill_empty",
 					Usage: "If values are empty, keys will be copied to values. (`0/1`)",
 				},
@@ -344,7 +348,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "include_path",
-					Usage: "Include relative directory name in the filename when uploading. (`0/1`)",
+					Usage: "Include relative directory name in the filename when uploading. Do not need enable if path contains language code. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "replace_breaks",
@@ -388,15 +392,16 @@ func main() {
 				}
 
 				importOptions := lokalise.ImportOptions{
-					Replace:       optionalBool(c.String("replace")),
-					IcuPlurals:    optionalBool(c.String("icu_plurals")),
-					FillEmpty:     optionalBool(c.String("fill_empty")),
-					Distinguish:   optionalBool(c.String("distinguish")),
-					IncludePath:   optionalBool(c.String("include_path")),
-					Hidden:        optionalBool(c.String("hidden")),
-					UseTransMem:   optionalBool(c.String("use_trans_mem")),
-					Tags:          commaSlice(c.String("tags")),
-					ReplaceBreaks: optionalBool(c.String("replace_breaks")),
+					Replace:             optionalBool(c.String("replace")),
+					ConvertPlaceholders: optionalBool(c.String("convert_placeholders")),
+					IcuPlurals:    	     optionalBool(c.String("icu_plurals")),
+					FillEmpty:     	     optionalBool(c.String("fill_empty")),
+					Distinguish:   	     optionalBool(c.String("distinguish")),
+					IncludePath:   	     optionalBool(c.String("include_path")),
+					Hidden:        	     optionalBool(c.String("hidden")),
+					UseTransMem:   	     optionalBool(c.String("use_trans_mem")),
+					Tags:          	     commaSlice(c.String("tags")),
+					ReplaceBreaks: 	     optionalBool(c.String("replace_breaks")),
 				}
 
 				cWhite := color.New(color.FgHiWhite)

@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.552"
+	app.Version = "v0.56"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -129,7 +129,11 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "bundle_structure",
-					Usage: ".ZIP bundle structure (see docs.lokalise.co for placeholders).",
+					Usage: "Bundle file structure (use with --use_original=0). See https://lokalise.co/apidocs#export",
+				},
+				cli.StringFlag{
+					Name:  "directory_prefix",
+					Usage: "Directory prefix in the bundle (use with --use_original=1). See https://lokalise.co/apidocs#export",
 				},
 				cli.StringFlag{
 					Name:  "webhook_url",
@@ -230,6 +234,7 @@ func main() {
 				opts := lokalise.ExportOptions{
 					UseOriginal:          optionalBool(c.String("use_original")),
 					BundleStructure:      optionalString(c.String("bundle_structure")),
+					DirectoryPrefix:      optionalString(c.String("directory_prefix")),
 					WebhookURL:           optionalString(c.String("webhook_url")),
 					ExportAll:            optionalBool(c.String("export_all")),
 					ExportEmpty:          optionalString(c.String("export_empty")),

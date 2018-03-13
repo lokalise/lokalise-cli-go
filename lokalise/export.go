@@ -14,6 +14,7 @@ type ExportOptions struct {
 	UseOriginal          *bool
 	Filter               []string
 	BundleStructure      *string
+	DirectoryPrefix      *string
 	WebhookURL           *string
 	ExportAll            *bool
 	ExportEmpty          *string
@@ -57,6 +58,7 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "langs", jsonArray(opts.Languages))
 	formAdd(form, "use_original", boolString(opts.UseOriginal))
 	formAdd(form, "filter", jsonArray(opts.Filter))
+	formAdd(form, "directory_prefix", opts.DirectoryPrefix)
 	formAdd(form, "bundle_structure", opts.BundleStructure)
 	formAdd(form, "webhook_url", opts.WebhookURL)
 	formAdd(form, "export_all", boolString(opts.ExportAll))

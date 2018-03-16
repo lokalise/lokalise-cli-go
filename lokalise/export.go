@@ -22,7 +22,8 @@ type ExportOptions struct {
 	PluralFormat         *string
 	IncludeComments      *bool
 	IncludePIDs          []string
-	Tags                 []string
+	IncludeTags          []string
+	ExcludeTags          []string
 	ExportSort           *string
 	ReplaceBreaks        *bool
 	YAMLIncludeRoot      *bool
@@ -67,7 +68,8 @@ func Export(apiToken, projectID, fileType string, opts *ExportOptions) (Bundle, 
 	formAdd(form, "plural_format", opts.PluralFormat)
 	formAdd(form, "include_comments", boolString(opts.IncludeComments))
 	formAdd(form, "include_pids", jsonArray(opts.IncludePIDs))
-	formAdd(form, "tags", jsonArray(opts.Tags))
+	formAdd(form, "include_tags", jsonArray(opts.IncludeTags))
+	formAdd(form, "exclude_tags", jsonArray(opts.ExcludeTags))
 	formAdd(form, "export_sort", opts.ExportSort)
 	formAdd(form, "replace_breaks", boolString(opts.ReplaceBreaks))
 	formAdd(form, "no_language_folders", boolString(opts.NoLanguageFolders))

@@ -98,6 +98,10 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 		return nil, err
 	}
 	if opts != nil {
+		multipartAdd(writer, "tags", jsonArray(opts.Tags))
+		if err != nil {
+			return nil, err
+		}
 		multipartAdd(writer, "fill_empty", boolString(opts.FillEmpty))
 		if err != nil {
 			return nil, err

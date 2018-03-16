@@ -29,7 +29,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.56"
+	app.Version = "v0.572"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -156,8 +156,12 @@ func main() {
 					Usage: "Other projects ID's, which keys to include in this export. (comma separated)",
 				},
 				cli.StringFlag{
-					Name:  "tags",
-					Usage: "Filter keys by tags (comma separated)",
+					Name:  "include_tags, tags",
+					Usage: "Only include keys with these tags (comma separated)",
+				},
+				cli.StringFlag{
+					Name:  "exclude_tags",
+					Usage: "Do not include keys with these tags (comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "yaml_include_root",
@@ -231,6 +235,13 @@ func main() {
 				if dest == "" {
 					dest = "."
 				}
+
+				// hack for now, need to think how to support legacy parameters
+				includeTags := c.String("include_tags");
+				if includeTags == "" {
+					includeTags = c.String("tags");
+				}
+
 				opts := lokalise.ExportOptions{
 					UseOriginal:          optionalBool(c.String("use_original")),
 					BundleStructure:      optionalString(c.String("bundle_structure")),
@@ -251,7 +262,8 @@ func main() {
 					Filter:               commaSlice(c.String("filter")),
 					Triggers:             commaSlice(c.String("triggers")),
 					IncludePIDs:          commaSlice(c.String("include_pids")),
-					Tags:                 commaSlice(c.String("tags")),
+					IncludeTags:          commaSlice(includeTags),
+					ExcludeTags:          commaSlice(c.String("exclude_tags")),
 				}
 
 				unzipTo := c.String("unzip_to")
@@ -353,7 +365,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "include_path",
-					Usage: "Include relative directory name in the filename when uploading. Do not need enable if path contains language code. (`0/1`)",
+					Usage: "Include relative directory name in the filename when uploading. Do not enable if path contains language code. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "replace_breaks",

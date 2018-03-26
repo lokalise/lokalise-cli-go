@@ -11,20 +11,6 @@ import (
 	"path/filepath"
 )
 
-// ImportOptions represents available options for importing files to a project.
-type ImportOptions struct {
-	Replace       	    *bool
-	ConvertPlaceholders *bool
-	FillEmpty           *bool
-	Distinguish         *bool
-	Hidden              *bool
-	UseTransMem         *bool
-	IncludePath         *bool
-	Tags                []string
-	ReplaceBreaks       *bool
-	IcuPlurals          *bool
-}
-
 // ImportResult represents the outcome of a file upload.
 type ImportResult struct {
 	Skipped  int64 `json:"skipped"`
@@ -38,11 +24,12 @@ type importResponse struct {
 }
 
 // Import uploads a file with translations in language langISO to a Lokalise project with ID projectID.
-// Customize the import by setting any options in opts.
+//
+// Customize the import by setting any ImportOptions.
 //
 // In case of API request errors an error of type Error is returned.
-func Import(apiToken, projectID, file, langISO string, opts *ImportOptions) (ImportResult, error) {
-	request, err := newfileUploadRequest(apiToken, projectID, file, langISO, opts)
+func Import(apiToken, projectID, file, langISO string, opts ...ImportOption) (ImportResult, error) {
+	request, err := newfileUploadRequest(apiToken, projectID, file, langISO, opts...)
 	if err != nil {
 		return ImportResult{}, err
 	}
@@ -67,7 +54,7 @@ func Import(apiToken, projectID, file, langISO string, opts *ImportOptions) (Imp
 	return dat.Result, nil
 }
 
-func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *ImportOptions) (*http.Request, error) {
+func newfileUploadRequest(apiToken, projectID, path, langISO string, opts ...ImportOption) (*http.Request, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -85,57 +72,21 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 		return nil, err
 	}
 
-	err = multipartAdd(writer, "api_token", &apiToken)
+	err = writer.WriteField("api_token", apiToken)
 	if err != nil {
 		return nil, err
 	}
-	multipartAdd(writer, "id", &projectID)
+	err = writer.WriteField("id", projectID)
 	if err != nil {
 		return nil, err
 	}
-	multipartAdd(writer, "lang_iso", &langISO)
+	err = writer.WriteField("lang_iso", langISO)
 	if err != nil {
 		return nil, err
 	}
 	if opts != nil {
-		multipartAdd(writer, "tags", jsonArray(opts.Tags))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "fill_empty", boolString(opts.FillEmpty))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "hidden", boolString(opts.Hidden))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "distinguish", boolString(opts.Distinguish))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "replace", boolString(opts.Replace))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "convert_placeholders", boolString(opts.ConvertPlaceholders))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "use_trans_mem", boolString(opts.UseTransMem))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "replace_breaks", boolString(opts.ReplaceBreaks))
-		if err != nil {
-			return nil, err
-		}
-		multipartAdd(writer, "icu_plurals", boolString(opts.IcuPlurals))
-		if err != nil {
-			return nil, err
-		}
-		if opts.IncludePath != nil {
-			multipartAdd(writer, "filename", &path)
+		for _, opt := range opts {
+			err := opt(writer)
 			if err != nil {
 				return nil, err
 			}
@@ -151,11 +102,4 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts *Impor
 	}
 	req.Header.Add("Content-Type", writer.FormDataContentType())
 	return req, nil
-}
-
-func multipartAdd(writer *multipart.Writer, field string, value *string) error {
-	if value == nil {
-		return nil
-	}
-	return writer.WriteField(field, *value)
 }

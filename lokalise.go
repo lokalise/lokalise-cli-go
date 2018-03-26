@@ -156,7 +156,11 @@ func main() {
 					Usage: "Other projects ID's, which keys to include in this export. (comma separated)",
 				},
 				cli.StringFlag{
-					Name:  "include_tags, tags",
+					Name:  "tags",
+					Usage: "Depreacted. Use include_tags instead: Only include keys with these tags (comma separated)",
+				},
+				cli.StringFlag{
+					Name:  "include_tags",
 					Usage: "Only include keys with these tags (comma separated)",
 				},
 				cli.StringFlag{
@@ -236,10 +240,10 @@ func main() {
 					dest = "."
 				}
 
-				// hack for now, need to think how to support legacy parameters
-				includeTags := c.String("include_tags");
-				if includeTags == "" {
-					includeTags = c.String("tags");
+				// map legacy flags to new names
+				if legacyTags := c.String("tags"); len(legacyTags) != 0 {
+					color.New(color.FgRed).Println("WARNING: --tags is deprecated. Use --include_tags instead.")
+					c.Set("include_tags", legacyTags)
 				}
 
 				opts := lokalise.ExportOptions{

@@ -6,7 +6,6 @@
 package lokalise
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -61,21 +60,9 @@ func (t *Time) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func jsonArray(s []string) *string {
-	if len(s) == 0 {
-		return nil
+func boolString(b bool) string {
+	if b {
+		return "1"
 	}
-	values := fmt.Sprintf("['%s']", strings.Join(s, "','"))
-	return &values
-}
-
-func boolString(b *bool) *string {
-	if b == nil {
-		return nil
-	}
-	v := "0"
-	if *b {
-		v = "1"
-	}
-	return &v
+	return "0"
 }

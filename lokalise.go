@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -156,7 +157,11 @@ func main() {
 					Usage: "Other projects ID's, which keys to include in this export. (comma separated)",
 				},
 				cli.StringFlag{
-					Name:  "include_tags, tags",
+					Name:  "tags",
+					Usage: "Depreacted. Use include_tags instead: Only include keys with these tags (comma separated)",
+				},
+				cli.StringFlag{
+					Name:  "include_tags",
 					Usage: "Only include keys with these tags (comma separated)",
 				},
 				cli.StringFlag{
@@ -236,35 +241,34 @@ func main() {
 					dest = "."
 				}
 
-				// hack for now, need to think how to support legacy parameters
-				includeTags := c.String("include_tags");
-				if includeTags == "" {
-					includeTags = c.String("tags");
+				// map legacy flags to new names
+				if legacyTags := c.String("tags"); len(legacyTags) != 0 {
+					color.New(color.FgRed).Println("WARNING: --tags is deprecated. Use --include_tags instead.")
+					c.Set("include_tags", legacyTags)
 				}
 
-				opts := lokalise.ExportOptions{
-					UseOriginal:          optionalBool(c.String("use_original")),
-					BundleStructure:      optionalString(c.String("bundle_structure")),
-					DirectoryPrefix:      optionalString(c.String("directory_prefix")),
-					WebhookURL:           optionalString(c.String("webhook_url")),
-					ExportAll:            optionalBool(c.String("export_all")),
-					ExportEmpty:          optionalString(c.String("export_empty")),
-					ExportSort:           optionalString(c.String("export_sort")),
-					PlaceholderFormat:    optionalString(c.String("placeholder_format")),
-					PluralFormat:         optionalString(c.String("plural_format")),
-					IncludeComments:      optionalBool(c.String("include_comments")),
-					ReplaceBreaks:        optionalBool(c.String("replace_breaks")),
-					YAMLIncludeRoot:      optionalBool(c.String("yaml_include_root")),
-					JSONUnescapedSlashes: optionalBool(c.String("json_unescaped_slashes")),
-					NoLanguageFolders:    optionalBool(c.String("no_language_folders")),
-					ICUNumeric:           optionalBool(c.String("icu_numeric")),
-					Languages:            commaSlice(c.String("langs")),
-					Filter:               commaSlice(c.String("filter")),
-					Triggers:             commaSlice(c.String("triggers")),
-					IncludePIDs:          commaSlice(c.String("include_pids")),
-					IncludeTags:          commaSlice(includeTags),
-					ExcludeTags:          commaSlice(c.String("exclude_tags")),
-				}
+				var opts []lokalise.ExportOption
+				opts = setExportBool(opts, c, "use_original", lokalise.WithOriginal)
+				opts = setExportString(opts, c, "bundle_structure", lokalise.WithBundleStructure)
+				opts = setExportString(opts, c, "directory_prefix", lokalise.WithDirectoryPrefix)
+				opts = setExportString(opts, c, "webhook_url", lokalise.WithWebhookURL)
+				opts = setExportBool(opts, c, "export_all", lokalise.WithAll)
+				opts = setExportString(opts, c, "export_empty", lokalise.WithEmpty)
+				opts = setExportString(opts, c, "export_sort", lokalise.WithSortOrder)
+				opts = setExportString(opts, c, "placeholder_format", lokalise.WithPlaceholderFormat)
+				opts = setExportString(opts, c, "plural_format", lokalise.WithPluralFormat)
+				opts = setExportBool(opts, c, "include_comments", lokalise.WithComments)
+				opts = setExportBool(opts, c, "replace_breaks", lokalise.WithExportReplaceBreaks)
+				opts = setExportBool(opts, c, "yaml_include_root", lokalise.WithYAMLRoot)
+				opts = setExportBool(opts, c, "json_unescaped_slashes", lokalise.WithJSONUnescapedSlashes)
+				opts = setExportBool(opts, c, "no_language_folders", lokalise.WithNoLanguageFolders)
+				opts = setExportBool(opts, c, "icu_numeric", lokalise.WithICUNumeric)
+				opts = setExportStrings(opts, c, "langs", lokalise.WithLanguages)
+				opts = setExportStrings(opts, c, "filter", lokalise.WithFilter)
+				opts = setExportStrings(opts, c, "triggers", lokalise.WithTriggers)
+				opts = setExportStrings(opts, c, "include_pids", lokalise.WithPIDs)
+				opts = setExportStrings(opts, c, "include_tags", lokalise.WithIncludeTags)
+				opts = setExportStrings(opts, c, "exclude_tags", lokalise.WithExcludeTags)
 
 				unzipTo := c.String("unzip_to")
 				keepZip := c.String("keep_zip")
@@ -279,7 +283,7 @@ func main() {
 				theSpinner.Start()
 				fmt.Print("Requesting...")
 
-				bundle, err := lokalise.Export(apiToken, projectID, fileType, &opts)
+				bundle, err := lokalise.Export(apiToken, projectID, fileType, opts...)
 				theSpinner.Stop()
 				if err != nil {
 					fmt.Printf("\n%v\n", err)
@@ -408,18 +412,18 @@ func main() {
 					return cli.NewExitError("ERROR: --lang_iso is required. If you are using filemask in --file parameter, make sure escape it (e.g. \\*.json).  Run `lokalise help import` for all options. ", 5)
 				}
 
-				importOptions := lokalise.ImportOptions{
-					Replace:             optionalBool(c.String("replace")),
-					ConvertPlaceholders: optionalBool(c.String("convert_placeholders")),
-					IcuPlurals:    	     optionalBool(c.String("icu_plurals")),
-					FillEmpty:     	     optionalBool(c.String("fill_empty")),
-					Distinguish:   	     optionalBool(c.String("distinguish")),
-					IncludePath:   	     optionalBool(c.String("include_path")),
-					Hidden:        	     optionalBool(c.String("hidden")),
-					UseTransMem:   	     optionalBool(c.String("use_trans_mem")),
-					Tags:          	     commaSlice(c.String("tags")),
-					ReplaceBreaks: 	     optionalBool(c.String("replace_breaks")),
-				}
+				includePath, _ := strconv.ParseBool(c.String("include_path"))
+
+				var opts []lokalise.ImportOption
+				opts = setImportBool(opts, c, "replce", lokalise.WithReplace)
+				opts = setImportBool(opts, c, "convert_placeholders", lokalise.WithConvertPlaceholders)
+				opts = setImportBool(opts, c, "icu_plurals", lokalise.WithICUPlurals)
+				opts = setImportBool(opts, c, "fill_empty", lokalise.WithFillEmpty)
+				opts = setImportBool(opts, c, "distinguish", lokalise.WithDistinguish)
+				opts = setImportBool(opts, c, "hidden", lokalise.WithHidden)
+				opts = setImportBool(opts, c, "use_trans_mem", lokalise.WithTranslationMemory)
+				opts = setImportStrings(opts, c, "tags", lokalise.WithTags)
+				opts = setImportBool(opts, c, "replace_breaks", lokalise.WithImportReplaceBreaks)
 
 				cWhite := color.New(color.FgHiWhite)
 				cGreen := color.New(color.FgGreen)
@@ -432,10 +436,13 @@ func main() {
 					}
 
 					for _, filename := range files {
+						if includePath {
+							opts = append(opts, lokalise.WithFilename(filename))
+						}
 						theSpinner := spinner.New(spinner.CharSets[9], 100*time.Millisecond)
 						cWhite.Printf("Uploading %s... ", filename)
 						theSpinner.Start()
-						result, err := lokalise.Import(apiToken, projectID, filename, langIso, &importOptions)
+						result, err := lokalise.Import(apiToken, projectID, filename, langIso, opts...)
 						theSpinner.Stop()
 						if err != nil {
 							fmt.Printf("\n%v\n", err)
@@ -478,6 +485,29 @@ func downloadFile(filepath string, url string) (err error) {
 	return nil
 }
 
+func setExportBool(opts []lokalise.ExportOption, c *cli.Context, cmdField string, f func(v bool) lokalise.ExportOption) []lokalise.ExportOption {
+	value := c.String(cmdField)
+	if value == "" {
+		return opts
+	}
+	b, _ := strconv.ParseBool(value)
+	return append(opts, f(b))
+}
+func setExportString(opts []lokalise.ExportOption, c *cli.Context, cmdField string, f func(v string) lokalise.ExportOption) []lokalise.ExportOption {
+	value := c.String(cmdField)
+	if value == "" {
+		return opts
+	}
+	return append(opts, f(value))
+}
+func setExportStrings(opts []lokalise.ExportOption, c *cli.Context, cmdField string, f func(v ...string) lokalise.ExportOption) []lokalise.ExportOption {
+	value := commaSlice(c.String(cmdField))
+	if len(value) == 0 {
+		return opts
+	}
+	return append(opts, f(value...))
+}
+
 func commaSlice(v string) []string {
 	if v == "" {
 		return nil
@@ -485,22 +515,27 @@ func commaSlice(v string) []string {
 	return strings.Split(v, ",")
 }
 
-func optionalBool(v string) *bool {
-	if v == "" {
-		return nil
+func setImportBool(opts []lokalise.ImportOption, c *cli.Context, cmdField string, f func(v bool) lokalise.ImportOption) []lokalise.ImportOption {
+	value := c.String(cmdField)
+	if value == "" {
+		return opts
 	}
-	var b bool
-	if v == "1" {
-		b = true
-	}
-	return &b
+	b, _ := strconv.ParseBool(value)
+	return append(opts, f(b))
 }
-
-func optionalString(v string) *string {
-	if v == "" {
-		return nil
+func setImportString(opts []lokalise.ImportOption, c *cli.Context, cmdField string, f func(v string) lokalise.ImportOption) []lokalise.ImportOption {
+	value := c.String(cmdField)
+	if len(value) == 0 {
+		return opts
 	}
-	return &v
+	return append(opts, f(value))
+}
+func setImportStrings(opts []lokalise.ImportOption, c *cli.Context, cmdField string, f func(v ...string) lokalise.ImportOption) []lokalise.ImportOption {
+	value := commaSlice(c.String(cmdField))
+	if len(value) == 0 {
+		return opts
+	}
+	return append(opts, f(value...))
 }
 
 func unzip(src, dest string) ([]string, error) {

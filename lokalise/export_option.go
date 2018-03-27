@@ -120,6 +120,20 @@ func WithSortOrder(order string) ExportOption {
 	return stringField("export_sort", order, allowedStrings("first_added", "last_added", "last_updated", "a_z", "z_a"))
 }
 
+// WithJavaPropertiesSeparator returns an ExportOption setting of the separator for .properties files export.
+//
+// Allowed values are ":", "=".
+func WithJavaPropertiesSeparator(order string) ExportOption {
+	return stringField("java_properties_separator", order, allowedStrings(":", "="))
+}
+
+// WithJavaPropertiesEncoding returns an ExportOption setting of the encoding for .properties files export.
+//
+// Allowed values are "utf-8", "latin-1".
+func WithJavaPropertiesEncoding(order string) ExportOption {
+	return stringField("java_properties_encoding", order, allowedStrings("utf-8", "latin-1"))
+}
+
 // WithExportReplaceBreaks returns an ExportOption setting whether to replace '\n' with
 // line breaks.
 func WithExportReplaceBreaks(enabled bool) ExportOption {

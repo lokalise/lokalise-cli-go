@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.572"
+	app.Version = "v0.58"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -177,6 +177,14 @@ func main() {
 					Usage: "Leave forward slashes unescaped in JSON export. (`0/1`)",
 				},
 				cli.StringFlag{
+					Name:  "java_properties_encoding",
+					Usage: "Encoding for .properties files. (utf-8, latin-1)",
+				},
+				cli.StringFlag{
+					Name:  "java_properties_separator",
+					Usage: "Separator for keys/values in .properties files. (=, :)",
+				},
+				cli.StringFlag{
 					Name:  "export_sort",
 					Usage: "Key sort order (first_added, last_added, last_updated, a_z, z_a)",
 				},
@@ -255,6 +263,8 @@ func main() {
 				opts = setExportBool(opts, c, "export_all", lokalise.WithAll)
 				opts = setExportString(opts, c, "export_empty", lokalise.WithEmpty)
 				opts = setExportString(opts, c, "export_sort", lokalise.WithSortOrder)
+				opts = setExportString(opts, c, "java_properties_encoding", lokalise.WithJavaPropertiesEncoding)
+				opts = setExportString(opts, c, "java_properties_separator", lokalise.WithJavaPropertiesSeparator)
 				opts = setExportString(opts, c, "placeholder_format", lokalise.WithPlaceholderFormat)
 				opts = setExportString(opts, c, "plural_format", lokalise.WithPluralFormat)
 				opts = setExportBool(opts, c, "include_comments", lokalise.WithComments)

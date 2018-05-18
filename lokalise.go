@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.58"
+	app.Version = "v0.581"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -425,7 +425,7 @@ func main() {
 				includePath, _ := strconv.ParseBool(c.String("include_path"))
 
 				var opts []lokalise.ImportOption
-				opts = setImportBool(opts, c, "replce", lokalise.WithReplace)
+				opts = setImportBool(opts, c, "replace", lokalise.WithReplace)
 				opts = setImportBool(opts, c, "convert_placeholders", lokalise.WithConvertPlaceholders)
 				opts = setImportBool(opts, c, "icu_plurals", lokalise.WithICUPlurals)
 				opts = setImportBool(opts, c, "fill_empty", lokalise.WithFillEmpty)

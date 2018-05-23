@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.581"
+	app.Version = "v0.59"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -300,33 +300,37 @@ func main() {
 					return cli.NewExitError("ERROR: API returned error (see above)", 7)
 				}
 
-				filename := strings.Split(bundle.File, "/")[4]
+				if bundle.File != "" {
+					filename := strings.Split(bundle.File, "/")[4]
 
-				cWhite.Println()
-				cWhite.Print("Remote ")
-				cGreen.Print(bundle.FullFile + "... ")
-				cWhite.Println("OK")
+					cWhite.Println()
+					cWhite.Print("Remote ")
+					cGreen.Print(bundle.FullFile + "... ")
+					cWhite.Println("OK")
 
-				cWhite.Print("Local ")
-				cGreen.Print(path.Join(dest, filename) + "... ")
+					cWhite.Print("Local ")
+					cGreen.Print(path.Join(dest, filename) + "... ")
 
-				downloadFile(path.Join(dest, filename), bundle.FullFile)
-				cWhite.Println("OK")
+					downloadFile(path.Join(dest, filename), bundle.FullFile)
+					cWhite.Println("OK")
 
-				if unzipTo != "" {
-					files, err := unzip(path.Join(dest, filename), unzipTo)
+					if unzipTo != "" {
+						files, err := unzip(path.Join(dest, filename), unzipTo)
 
-					if err != nil {
-						cWhite.Println("Error unzipping files")
-					} else {
-						cWhite.Print("Unzipped ")
-						cGreen.Print(strings.Join(files, ", ") + " ")
-						cWhite.Println("OK")
-						if keepZip == "0" {
-							os.Remove(path.Join(dest, filename))
+						if err != nil {
+							cWhite.Println("Error unzipping files")
+						} else {
+							cWhite.Print("Unzipped ")
+							cGreen.Print(strings.Join(files, ", ") + " ")
+							cWhite.Println("OK")
+							if keepZip == "0" {
+								os.Remove(path.Join(dest, filename))
+							}
 						}
-					}
 
+					}
+				} else {
+					cWhite.Println("OK")
 				}
 
 				return nil

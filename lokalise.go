@@ -277,7 +277,7 @@ func main() {
 				opts = setExportBool(opts, c, "json_unescaped_slashes", lokalise.WithJSONUnescapedSlashes)
 				opts = setExportBool(opts, c, "no_language_folders", lokalise.WithNoLanguageFolders)
 				opts = setExportBool(opts, c, "icu_numeric", lokalise.WithICUNumeric)
-				opts = setExportBool(opts, c, "escape_percent", lokalise.EscapePercent)
+				opts = setExportBool(opts, c, "escape_percent", lokalise.WithPercentEscape)
 				opts = setExportStrings(opts, c, "langs", lokalise.WithLanguages)
 				opts = setExportStrings(opts, c, "filter", lokalise.WithFilter)
 				opts = setExportStrings(opts, c, "triggers", lokalise.WithTriggers)

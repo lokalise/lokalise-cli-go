@@ -189,6 +189,14 @@ func WithICUNumeric(enabled bool) ExportOption {
 	return boolField("icu_numeric", enabled)
 }
 
+// EscapePercent returns an ExportOption setting whether all universal percent
+// placeholders "[%]" will be always exported as "%%".
+//
+// Only works for printf placeholder format.
+func EscapePercent(enabled bool) ExportOption {
+	return boolField("escape_percent", enabled)
+}
+
 // WithPlaceholderFormat returns an ExportOption overriding the default
 // placeholder format for the file type.
 //

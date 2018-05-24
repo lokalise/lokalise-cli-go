@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.59"
+	app.Version = "v0.60"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -212,6 +212,10 @@ func main() {
 					Name:  "placeholder_format",
 					Usage: "Override default placeholder format. See https://lokalise.co/apidocs#pl_ph_formats (value).",
 				},
+				cli.StringFlag{
+					Name:  "escape_percent",
+					Usage: "When enabled, all universal percent placeholders [%] will be always exported as %%. Only works for printf placeholder format ('0/1').",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				var conf Config
@@ -273,6 +277,7 @@ func main() {
 				opts = setExportBool(opts, c, "json_unescaped_slashes", lokalise.WithJSONUnescapedSlashes)
 				opts = setExportBool(opts, c, "no_language_folders", lokalise.WithNoLanguageFolders)
 				opts = setExportBool(opts, c, "icu_numeric", lokalise.WithICUNumeric)
+				opts = setExportBool(opts, c, "escape_percent", lokalise.EscapePercent)
 				opts = setExportStrings(opts, c, "langs", lokalise.WithLanguages)
 				opts = setExportStrings(opts, c, "filter", lokalise.WithFilter)
 				opts = setExportStrings(opts, c, "triggers", lokalise.WithTriggers)

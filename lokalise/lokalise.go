@@ -14,7 +14,7 @@ import (
 const (
 	baseURL    = "https://api.lokalise.co/api/"
 	assetURL   = "https://s3-eu-west-1.amazonaws.com/lokalise-assets/"
-	timeout    = 10 * time.Second
+	timeout    = 120 * time.Second
 	timeFormat = "2006-01-02 15:04:05"
 )
 

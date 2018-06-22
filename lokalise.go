@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.60"
+	app.Version = "v0.61"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 

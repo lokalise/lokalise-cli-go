@@ -25,7 +25,7 @@ func WithOriginal(enabled bool) ExportOption {
 // WithFilter returns an ExportOption setting a filter on the export data
 // range. Allows values are 'translated', 'nonfuzzy' and 'nonhidden'.
 func WithFilter(values ...string) ExportOption {
-	return stringArrayField("filter", values, allowedSliceStrings("translated", "nonfuzzy", "nonhidden"))
+	return stringArrayField("filter", values, allowedSliceStrings("translated", "nonfuzzy", "nonhidden", "reviewed", "proofread"))
 }
 
 // WithBundleStructure returns an ExportOption setting the bundle structure.

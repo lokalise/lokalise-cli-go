@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.61"
+	app.Version = "v0.62"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -126,7 +126,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "filter",
-					Usage: "Filter by 'translated', 'nonfuzzy', 'nonhidden' fields.(comma separated)",
+					Usage: "Filter by 'translated', 'reviewed', 'nonfuzzy', 'nonhidden' fields. (comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "bundle_structure",

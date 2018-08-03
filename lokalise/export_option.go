@@ -170,7 +170,7 @@ func WithNoLanguageFolders(enabled bool) ExportOption {
 //
 // Allowed values are "amazon", "gcs" and "github".
 func WithTriggers(triggers ...string) ExportOption {
-	return stringArrayField("triggers", triggers, allowedSliceStrings("amazon", "gcs", "github"))
+	return stringArrayField("triggers", triggers, allowedSliceStrings("amazons3", "gcs", "github", "gitlab", "bitbucket"))
 }
 
 // WithPluralFormat returns an ExportOption overriding the default plural
@@ -178,7 +178,7 @@ func WithTriggers(triggers ...string) ExportOption {
 //
 // Allowed values are "json_string", "icu", "array" and "generic".
 func WithPluralFormat(format string) ExportOption {
-	return stringField("plural_format", format, allowedStrings("json_string", "icu", "array", "generic"))
+	return stringField("plural_format", format, allowedStrings("json_string", "icu", "array", "generic", "symfony"))
 }
 
 // WithICUNumeric returns an ExportOption setting whether the plural forms
@@ -202,7 +202,7 @@ func WithPercentEscape(enabled bool) ExportOption {
 //
 // Allowed values are "printf", "ios", "icu" and "net".
 func WithPlaceholderFormat(format string) ExportOption {
-	return stringField("placeholder_format", format, allowedStrings("printf", "ios", "icu", "net"))
+	return stringField("placeholder_format", format, allowedStrings("printf", "ios", "icu", "net", "symfony"))
 }
 
 func boolField(field string, value bool) ExportOption {

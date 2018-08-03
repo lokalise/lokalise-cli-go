@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.62"
+	app.Version = "v0.63"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -198,7 +198,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "triggers",
-					Usage: "Trigger integration export. Allowed values are 'amazons3' and 'gcs'. (comma separated)",
+					Usage: "Trigger integration export. Allowed values are 'amazons3', 'gcs', 'gitlab', 'github', 'bitbucket'. (comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "plural_format",

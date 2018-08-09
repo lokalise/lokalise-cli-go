@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.63"
+	app.Version = "v0.64"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -186,7 +186,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "export_sort",
-					Usage: "Key sort order (first_added, last_added, last_updated, a_z, z_a)",
+					Usage: "Key sort order. (first_added, last_added, last_updated, a_z, z_a)",
 				},
 				cli.StringFlag{
 					Name:  "replace_breaks",
@@ -211,6 +211,10 @@ func main() {
 				cli.StringFlag{
 					Name:  "placeholder_format",
 					Usage: "Override default placeholder format. See https://lokalise.co/apidocs#pl_ph_formats (value).",
+				},
+				cli.StringFlag{
+					Name:  "indentation",
+					Usage: "Provide to override default indentation in supported files. (1sp, 2sp, 3sp, 4sp, 5sp, 6sp, 7sp, 8sp, tab)",
 				},
 				cli.StringFlag{
 					Name:  "escape_percent",
@@ -270,6 +274,7 @@ func main() {
 				opts = setExportString(opts, c, "java_properties_encoding", lokalise.WithJavaPropertiesEncoding)
 				opts = setExportString(opts, c, "java_properties_separator", lokalise.WithJavaPropertiesSeparator)
 				opts = setExportString(opts, c, "placeholder_format", lokalise.WithPlaceholderFormat)
+				opts = setExportString(opts, c, "indentation", lokalise.WithIndentation)
 				opts = setExportString(opts, c, "plural_format", lokalise.WithPluralFormat)
 				opts = setExportBool(opts, c, "include_comments", lokalise.WithComments)
 				opts = setExportBool(opts, c, "replace_breaks", lokalise.WithExportReplaceBreaks)

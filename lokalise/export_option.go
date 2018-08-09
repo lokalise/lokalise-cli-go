@@ -197,6 +197,13 @@ func WithPercentEscape(enabled bool) ExportOption {
 	return boolField("escape_percent", enabled)
 }
 
+// WithIndentation returns an ExportOption overriding the default indentation
+//
+// Allowed values are "1sp", "2sp", "3sp", "4sp", "5sp", "6sp", "7sp", "8sp", "tab",
+func WithIndentation(format string) ExportOption {
+	return stringField("indentation", format, allowedStrings("1sp", "2sp", "3sp", "4sp", "5sp", "6sp", "7sp", "8sp", "tab"))
+}
+
 // WithPlaceholderFormat returns an ExportOption overriding the default
 // placeholder format for the file type.
 //

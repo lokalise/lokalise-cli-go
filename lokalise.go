@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.64"
+	app.Version = "v0.66"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -201,6 +201,10 @@ func main() {
 					Usage: "Trigger integration export. Allowed values are 'amazons3', 'gcs', 'gitlab', 'github', 'bitbucket'. (comma separated)",
 				},
 				cli.StringFlag{
+					Name:  "repos",
+					Usage: "If a repo integration is triggered, specify to which repos the pull requests should go to. Don't specify for all. (comma separated)",
+				},
+				cli.StringFlag{
 					Name:  "plural_format",
 					Usage: "Override default plural format. See https://lokalise.co/apidocs#pl_ph_formats (value).",
 				},
@@ -286,6 +290,7 @@ func main() {
 				opts = setExportStrings(opts, c, "langs", lokalise.WithLanguages)
 				opts = setExportStrings(opts, c, "filter", lokalise.WithFilter)
 				opts = setExportStrings(opts, c, "triggers", lokalise.WithTriggers)
+				opts = setExportStrings(opts, c, "repos", lokalise.WithRepos)
 				opts = setExportStrings(opts, c, "include_pids", lokalise.WithPIDs)
 				opts = setExportStrings(opts, c, "include_tags", lokalise.WithIncludeTags)
 				opts = setExportStrings(opts, c, "exclude_tags", lokalise.WithExcludeTags)
@@ -399,6 +404,10 @@ func main() {
 					Name:  "replace_breaks",
 					Usage: "Replace \\n with line breaks. (`0/1`)",
 				},
+				cli.StringFlag{
+					Name:  "cleanup_mode",
+					Usage: "Enable to delete keys with all language translations from Lokalise that are not present in the uploaded files. (`0/1`)",
+				},
 			},
 			Action: func(c *cli.Context) error {
 				var conf Config
@@ -448,6 +457,7 @@ func main() {
 				opts = setImportBool(opts, c, "use_trans_mem", lokalise.WithTranslationMemory)
 				opts = setImportStrings(opts, c, "tags", lokalise.WithTags)
 				opts = setImportBool(opts, c, "replace_breaks", lokalise.WithImportReplaceBreaks)
+				opts = setImportBool(opts, c, "cleanup_mode", lokalise.WithCleanupMode)
 
 				cWhite := color.New(color.FgHiWhite)
 				cGreen := color.New(color.FgGreen)

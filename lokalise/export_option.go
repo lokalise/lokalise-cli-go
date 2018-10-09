@@ -173,6 +173,12 @@ func WithTriggers(triggers ...string) ExportOption {
 	return stringArrayField("triggers", triggers, allowedSliceStrings("amazons3", "gcs", "github", "gitlab", "bitbucket"))
 }
 
+// WithRepos returns an ExportOption setting what repos to include when repo integrations are triggered.
+//
+func WithRepos(repos ...string) ExportOption {
+	return stringArrayField("repos", repos)
+}
+
 // WithPluralFormat returns an ExportOption overriding the default plural
 // format for the file type.
 //

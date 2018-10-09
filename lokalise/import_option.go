@@ -91,3 +91,11 @@ func WithImportReplaceBreaks(enabled bool) ImportOption {
 		return w.WriteField("replace_breaks", boolString(enabled))
 	}
 }
+
+// WithCleanupMode returns an ImportOption setting whether to use cleanup mode.
+//
+func WithCleanupMode(enabled bool) ImportOption {
+	return func(w *multipart.Writer) error {
+		return w.WriteField("cleanup_mode", boolString(enabled))
+	}
+}

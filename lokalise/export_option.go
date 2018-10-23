@@ -90,9 +90,15 @@ func WithEmpty(value string) ExportOption {
 }
 
 // WithComments returns an ExportOption setting whether to include key
-// comments (if supported by format).
+// comments AND description (if supported by format).
 func WithComments(enabled bool) ExportOption {
 	return boolField("include_comments", enabled)
+}
+
+// WithDescription returns an ExportOption setting whether to include key
+// description ONLY (if supported by format).
+func WithDescription(enabled bool) ExportOption {
+	return boolField("include_description", enabled)
 }
 
 // WithPIDs returns an ExportOption setting other projects ID's to be included

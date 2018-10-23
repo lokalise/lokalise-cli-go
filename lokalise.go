@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.66"
+	app.Version = "v0.67"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -150,7 +150,11 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "include_comments",
-					Usage: "Include comments in exported file. (`0/1`)",
+					Usage: "Include key comments and description in the exported file. (`0/1`)",
+				},
+				cli.StringFlag{
+					Name:  "include_description",
+					Usage: "Include key description only in the exported file. (`0/1`)",
 				},
 				cli.StringFlag{
 					Name:  "include_pids",
@@ -158,7 +162,7 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "tags",
-					Usage: "Depreacted. Use include_tags instead: Only include keys with these tags (comma separated)",
+					Usage: "Depreciated. Use include_tags instead: Only include keys with these tags (comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "include_tags",
@@ -281,6 +285,7 @@ func main() {
 				opts = setExportString(opts, c, "indentation", lokalise.WithIndentation)
 				opts = setExportString(opts, c, "plural_format", lokalise.WithPluralFormat)
 				opts = setExportBool(opts, c, "include_comments", lokalise.WithComments)
+				opts = setExportBool(opts, c, "include_description", lokalise.WithDescription)
 				opts = setExportBool(opts, c, "replace_breaks", lokalise.WithExportReplaceBreaks)
 				opts = setExportBool(opts, c, "yaml_include_root", lokalise.WithYAMLRoot)
 				opts = setExportBool(opts, c, "json_unescaped_slashes", lokalise.WithJSONUnescapedSlashes)

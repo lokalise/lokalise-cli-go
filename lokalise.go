@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/BurntSushi/toml"
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"./lokalise"

@@ -15,18 +15,13 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
-	"github.com/lokalise/lokalise-cli-go/lokalise"
+	"./lokalise"
 	"github.com/urfave/cli"
 )
 
 func main() {
 	var apiToken string
 	var configFile string
-
-	type Config struct {
-		Token   string
-		Project string
-	}
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
@@ -42,7 +37,7 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:        "config",
-			Usage:       "Load configuration from `file`. Looks up /etc/lokalise.cfg by default.",
+			Usage:       "Load configuration from `file`. Looks up ~/.lokalise/lokalise.cfg by default.",
 			Destination: &configFile,
 		},
 	}
@@ -53,15 +48,7 @@ func main() {
 			Aliases: []string{"l"},
 			Usage:   "List your projects at Lokalise.",
 			Action: func(c *cli.Context) error {
-				var conf Config
-
-				if configFile == "" {
-					configFile = "/etc/lokalise.cfg"
-				}
-
-				if _, err := toml.DecodeFile(configFile, &conf); err != nil {
-					// do nothing if no config
-				}
+				conf := lokalise.LoadConfig(configFile)
 
 				if apiToken == "" {
 					apiToken = conf.Token
@@ -230,15 +217,7 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				var conf Config
-
-				if configFile == "" {
-					configFile = "/etc/lokalise.cfg"
-				}
-
-				if _, err := toml.DecodeFile(configFile, &conf); err != nil {
-					// do nothing if no config
-				}
+				conf := lokalise.LoadConfig(configFile)
 
 				if apiToken == "" {
 					apiToken = conf.Token
@@ -415,15 +394,7 @@ func main() {
 				},
 			},
 			Action: func(c *cli.Context) error {
-				var conf Config
-
-				if configFile == "" {
-					configFile = "/etc/lokalise.cfg"
-				}
-
-				if _, err := toml.DecodeFile(configFile, &conf); err != nil {
-					// do nothing if no config
-				}
+				conf := lokalise.LoadConfig(configFile)
 
 				if apiToken == "" {
 					apiToken = conf.Token

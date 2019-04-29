@@ -23,9 +23,9 @@ func WithOriginal(enabled bool) ExportOption {
 }
 
 // WithFilter returns an ExportOption setting a filter on the export data
-// range. Allows values are 'translated', 'nonfuzzy' and 'nonhidden'.
+// range. Allows values are 'translated', 'nonfuzzy' and 'nonhidden', 'reviewed' and 'last_reviewed_only'.
 func WithFilter(values ...string) ExportOption {
-	return stringArrayField("filter", values, allowedSliceStrings("translated", "nonfuzzy", "nonhidden", "reviewed", "proofread"))
+	return stringArrayField("filter", values, allowedSliceStrings("translated", "nonfuzzy", "nonhidden", "reviewed", "proofread", "last_reviewed_only"))
 }
 
 // WithBundleStructure returns an ExportOption setting the bundle structure.
@@ -190,7 +190,7 @@ func WithRepos(repos ...string) ExportOption {
 //
 // Allowed values are "json_string", "icu", "array" and "generic".
 func WithPluralFormat(format string) ExportOption {
-	return stringField("plural_format", format, allowedStrings("json_string", "icu", "array", "generic", "symfony"))
+	return stringField("plural_format", format, allowedStrings("json_string", "icu", "array", "generic", "symfony", "raw", "i18next"))
 }
 
 // WithICUNumeric returns an ExportOption setting whether the plural forms
@@ -221,7 +221,7 @@ func WithIndentation(format string) ExportOption {
 //
 // Allowed values are "printf", "ios", "icu" and "net".
 func WithPlaceholderFormat(format string) ExportOption {
-	return stringField("placeholder_format", format, allowedStrings("printf", "ios", "icu", "net", "symfony"))
+	return stringField("placeholder_format", format, allowedStrings("printf", "ios", "icu", "net", "symfony", "raw", "i18n"))
 }
 
 func boolField(field string, value bool) ExportOption {

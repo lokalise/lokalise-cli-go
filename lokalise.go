@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.70"
+	app.Version = "v0.711"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -395,7 +395,19 @@ func main() {
 				},
 				cli.StringFlag{
 					Name:  "tags",
-					Usage: "Tags list for newly imported keys. (comma separated)",
+					Usage: "Tags list for newly imported keys. By default tags are applied to created and updated keys. (comma separated)",
+				},
+				cli.StringFlag{
+					Name:  "tag_inserted_keys",
+					Usage: "Add specified tags to inserted keys. (comma separated)",
+				},
+				cli.StringFlag{
+					Name:  "tag_updated_keys",
+					Usage: "Add specified tags to updated keys. (comma separated)",
+				},
+				cli.StringFlag{
+					Name:  "tag_skipped_keys",
+					Usage: "Add specified tags to skipped keys. (comma separated)",
 				},
 				cli.StringFlag{
 					Name:  "use_trans_mem",
@@ -461,6 +473,9 @@ func main() {
 				opts = setImportBool(opts, c, "hidden", lokalise.WithHidden)
 				opts = setImportBool(opts, c, "use_trans_mem", lokalise.WithTranslationMemory)
 				opts = setImportStrings(opts, c, "tags", lokalise.WithTags)
+				opts = setImportStrings(opts, c, "tag_inserted_keys", lokalise.WithTagInsertedKeys)
+				opts = setImportStrings(opts, c, "tag_updated_keys", lokalise.WithTagUpdatedKeys)
+				opts = setImportStrings(opts, c, "tag_skipped_keys", lokalise.WithTagSkippedKeys)
 				opts = setImportBool(opts, c, "replace_breaks", lokalise.WithImportReplaceBreaks)
 				opts = setImportBool(opts, c, "cleanup_mode", lokalise.WithCleanupMode)
 

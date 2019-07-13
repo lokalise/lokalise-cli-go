@@ -64,6 +64,7 @@ func newfileUploadRequest(apiToken, projectID, path, langISO string, opts ...Imp
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile("file", filepath.Base(path))
+
 	if err != nil {
 		return nil, err
 	}

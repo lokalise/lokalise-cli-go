@@ -77,6 +77,42 @@ func WithTags(tags ...string) ImportOption {
 	}
 }
 
+// WithTagInsertedKeys returns an ImportOption setting a list of tags for inserted
+// keys.
+func WithTagInsertedKeys(tags ...string) ImportOption {
+	return func(w *multipart.Writer) error {
+		jsonTags, err := json.Marshal(tags)
+		if err != nil {
+			return err
+		}
+		return w.WriteField("tag_inserted_keys", string(jsonTags))
+	}
+}
+
+// WithTagUpdatedKeys returns an ImportOption setting a list of tags for updated
+// keys.
+func WithTagUpdatedKeys(tags ...string) ImportOption {
+	return func(w *multipart.Writer) error {
+		jsonTags, err := json.Marshal(tags)
+		if err != nil {
+			return err
+		}
+		return w.WriteField("tag_updated_keys", string(jsonTags))
+	}
+}
+
+// WithTagSkippedKeys returns an ImportOption setting a list of tags for skipped
+// keys.
+func WithTagSkippedKeys(tags ...string) ImportOption {
+	return func(w *multipart.Writer) error {
+		jsonTags, err := json.Marshal(tags)
+		if err != nil {
+			return err
+		}
+		return w.WriteField("tag_skipped_keys", string(jsonTags))
+	}
+}
+
 // WithFilename returns an ImportOption setting an override of the filename.
 func WithFilename(filename string) ImportOption {
 	return func(w *multipart.Writer) error {

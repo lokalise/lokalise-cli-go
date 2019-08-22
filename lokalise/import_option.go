@@ -25,6 +25,14 @@ func WithConvertPlaceholders(enabled bool) ImportOption {
 	}
 }
 
+// WithSkipDetectLangIso returns an ImportOption setting whether to detect
+// and convert language codes to %LANG_ISO%
+func WithSkipDetectLangIso(enabled bool) ImportOption {
+	return func(w *multipart.Writer) error {
+		return w.WriteField("skip_detect_lang_iso", boolString(enabled))
+	}
+}
+
 // WithICUPlurals returns an ImportOption setting whether to automatically
 // detect and parse ICU formatted plurals.
 func WithICUPlurals(enabled bool) ImportOption {

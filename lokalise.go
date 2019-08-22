@@ -30,7 +30,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "Lokalise CLI tool"
-	app.Version = "v0.711"
+	app.Version = "v0.72"
 	app.Compiled = time.Now()
 	app.Usage = "upload and download language files."
 
@@ -374,6 +374,10 @@ func main() {
 					Usage: "Shall existing translations be replaced. (`0/1`)",
 				},
 				cli.StringFlag{
+					Name:  "skip_detect_lang_iso",
+					Usage: "Disable detecting and converting language code to %LANG_ISO% in filenames. (`0/1`)",
+				},
+				cli.StringFlag{
 					Name:  "convert_placeholders",
 					Usage: "Convert placeholders to Lokalise universal ones. https://docs.lokalise.co/developer-docs/universal-placeholders (`0/1`)",
 				},
@@ -466,6 +470,7 @@ func main() {
 
 				var opts []lokalise.ImportOption
 				opts = setImportBool(opts, c, "replace", lokalise.WithReplace)
+				opts = setImportBool(opts, c, "skip_detect_lang_iso", lokalise.WithSkipDetectLangIso)
 				opts = setImportBool(opts, c, "convert_placeholders", lokalise.WithConvertPlaceholders)
 				opts = setImportBool(opts, c, "icu_plurals", lokalise.WithICUPlurals)
 				opts = setImportBool(opts, c, "fill_empty", lokalise.WithFillEmpty)

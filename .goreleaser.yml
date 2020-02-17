@@ -2,7 +2,7 @@ builds:
   - env:
       - CGO_ENABLED=0
     binary:
-      lokalise2
+      lokalise
     goos:
       - darwin
       - windows
@@ -29,19 +29,19 @@ archives:
       - goos: windows
         format: zip
 
-    name_template: "lokalise2_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    name_template: "lokalise_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     files:
       - none*
 
 brews:
   - github:
       owner: lokalise
-      name: homebrew-cli-2
+      name: homebrew-brew
     folder: Formula
-    homepage: "https://docs.lokalise.com/cli2"
-    description: "Lokalise CLI v2"
+    homepage: "https://docs.lokalise.co/api-and-cli/lokalise-cli-tool"
+    description: "Lokalise CLI Tool - API client binary"
     skip_upload: false
-    name: lokalise2
+    name: lokalise
 
 checksum:
   name_template: 'checksums.txt'
@@ -50,14 +50,13 @@ changelog:
   sort: asc
 
 dockers:
-  -
-    goos: linux
+  - goos: linux
     goarch: amd64
     goarm: ''
     binaries:
-      - lokalise2
+      - lokalise
     image_templates:
-      - "lokalise/lokalise-cli-2:latest"
-      - "lokalise/lokalise-cli-2:{{ .Tag }}"
+      - "lokalise/lokalise-cli:latest"
+      - "lokalise/lokalise-cli:{{ .Tag }}"
     skip_push: true
     dockerfile: Dockerfile
